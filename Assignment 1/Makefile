@@ -13,7 +13,7 @@ endif
 
 NVSDKINC=	 
 NVSDKLIB=       -lCgGL -lCg -lglut -lGLU -lGLEW \
-		-lpng -lpthread
+		-lpng -lpthread -lGL
 CC	=	gcc 
 CXX	=	g++ 
 REGULAR = 	-O3 -pipe -Wall -fno-strength-reduce -fPIC	
