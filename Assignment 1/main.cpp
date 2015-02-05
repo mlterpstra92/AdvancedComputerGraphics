@@ -10,14 +10,15 @@ CGprogram myVertexProgram = NULL;
 CGprofile vertexProfile = CG_PROFILE_VP40;
 static void display()
 {
-    cgGLEnableProfile(vertexProfile);
-    cgGLBindProgram(myVertexProgram);
+    printf("Drawing callback\n");
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       
+    cgGLEnableProfile(vertexProfile);
+    cgGLBindProgram(myVertexProgram);
     glutWireSphere(1.0, 10, 10);
-    glutSwapBuffers();
-    
+
     cgGLDisableProfile(vertexProfile);
+    glutSwapBuffers();
 }
 
 static void initializeGlut(int *argc, char *argv[])
@@ -53,22 +54,20 @@ static void initializeGlut(int *argc, char *argv[])
 
 int main (int argc, char *argv[])
 {
+    //Initialize GLUT
     initializeGlut(&argc, argv);
+
+    //Compile shader from file
     context = cgCreateContext();
-    myVertexProgram = cgCreateProgramFromFile(
-    context,
-    CG_SOURCE,
-    "colorful_v.cg",
-    vertexProfile,
-    "main", // name of entry point in our shader
-    NULL);
+    myVertexProgram = cgCreateProgramFromFile(context, CG_SOURCE, "colorful_v.cg", vertexProfile, "main", NULL);
     if(!myVertexProgram)
     {
-    printf("Couldn’t load vertex program.\n");
-    printf("%s\n",cgGetLastListing(context));
-    return 0;
+        printf("Shader failed, could not load vertex program\n");
+        printf("%s\n", cgGetLastListing(context));
+        return -1;
     }
-    cgGLLoadProgram(myVertexProgram);
+
+    //Enter main loop
     glutMainLoop();
         
     // never gets here.
