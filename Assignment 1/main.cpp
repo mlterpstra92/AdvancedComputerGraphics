@@ -1,16 +1,23 @@
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <Cg/cg.h>
+#include <Cg/cgGL.h>
 
 int w_width=512, w_height=512;
-
+CGcontext context = NULL;
+CGprogram myVertexProgram = NULL;
+CGprofile vertexProfile = CG_PROFILE_VP40;
 static void display()
 {
+    cgGLEnableProfile(vertexProfile);
+    cgGLBindProgram(myVertexProgram);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       
     glutWireSphere(1.0, 10, 10);
-
     glutSwapBuffers();
+    
+    cgGLDisableProfile(vertexProfile);
 }
 
 static void initializeGlut(int *argc, char *argv[])
@@ -47,6 +54,21 @@ static void initializeGlut(int *argc, char *argv[])
 int main (int argc, char *argv[])
 {
     initializeGlut(&argc, argv);
+    context = cgCreateContext();
+    myVertexProgram = cgCreateProgramFromFile(
+    context,
+    CG_SOURCE,
+    "colorful_v.cg",
+    vertexProfile,
+    "main", // name of entry point in our shader
+    NULL);
+    if(!myVertexProgram)
+    {
+    printf("Couldn’t load vertex program.\n");
+    printf("%s\n",cgGetLastListing(context));
+    return 0;
+    }
+    cgGLLoadProgram(myVertexProgram);
     glutMainLoop();
         
     // never gets here.

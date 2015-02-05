@@ -1,0 +1,11 @@
+struct OurOutputType {
+	float4 position : POSITION;
+	float4 color : COLOR;
+};
+OurOutputType main(float4 position : POSITION)
+{
+	OurOutputType OUT;
+	OUT.position = position;
+	OUT.color = position;
+	return OUT;
+}
