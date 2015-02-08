@@ -8,17 +8,19 @@ int w_width=512, w_height=512;
 CGcontext context = NULL;
 CGprogram myVertexProgram = NULL;
 CGprofile vertexProfile = CG_PROFILE_VP40;
+CGparameter modelViewProj = NULL;
 static void display()
 {
 
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    cgGLSetStateMatrixParameter(modelViewProj,CG_GL_MODELVIEW_PROJECTION_MATRIX,CG_GL_MATRIX_IDENTITY);
     cgGLEnableProfile(vertexProfile);
     cgGLBindProgram(myVertexProgram);
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       
     glutWireSphere(1.0, 10, 10);
 
-    glutSwapBuffers();
     cgGLDisableProfile(vertexProfile);
+    glutSwapBuffers();
 }
 
 static void initializeGlut(int *argc, char *argv[])
@@ -67,6 +69,12 @@ int main (int argc, char *argv[])
         return -1;
     }
     cgGLLoadProgram(myVertexProgram);
+    modelViewProj = cgGetNamedParameter(myVertexProgram, "modelViewProj");
+    if (!modelViewProj)
+    {
+        printf("Parameter modelViewProj was not defined in the shader\n");
+        return -2;
+    }
     //Enter main loop
     glutMainLoop();
         
