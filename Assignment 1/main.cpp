@@ -10,15 +10,15 @@ CGprogram myVertexProgram = NULL;
 CGprofile vertexProfile = CG_PROFILE_VP40;
 static void display()
 {
-    printf("Drawing callback\n");
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      
+
     cgGLEnableProfile(vertexProfile);
     cgGLBindProgram(myVertexProgram);
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      
     glutWireSphere(1.0, 10, 10);
 
-    cgGLDisableProfile(vertexProfile);
     glutSwapBuffers();
+    cgGLDisableProfile(vertexProfile);
 }
 
 static void initializeGlut(int *argc, char *argv[])
@@ -66,7 +66,7 @@ int main (int argc, char *argv[])
         printf("%s\n", cgGetLastListing(context));
         return -1;
     }
-
+    cgGLLoadProgram(myVertexProgram);
     //Enter main loop
     glutMainLoop();
         
