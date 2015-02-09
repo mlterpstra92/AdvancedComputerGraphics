@@ -34,9 +34,38 @@ vector<glm::vec3> teapot_vertices;
 vector<glm::vec3> teapot_normals;
 vector<glm::vec3> teapot_faces;
 
+
+void calcFPS(int theTimeInterval = 1000, std::string theWindowTitle = "NONE")
+{
+    // Static values which only get initialised the first time the function runs
+    static int t0Value = glutGet(GLUT_ELAPSED_TIME); // Set the initial time to now
+    static int fpsFrameCount = 0; // Set the initial FPS frame count to 0
+    static double fps = 0.0; // Set the initial FPS value to 0.0
+    // Get the current time in seconds since the program started (non-static, so executed every time)
+    int currentTime = glutGet(GLUT_ELAPSED_TIME);
+    // Calculate and display the FPS every specified time interval
+    if ((currentTime - t0Value) > theTimeInterval)
+    {
+        // Calculate the FPS as the number of frames divided by the interval in seconds
+        fps = ((double)(fpsFrameCount * 1000.0)) / (currentTime - t0Value);
+        char buf[6];
+        snprintf(buf, 6, "%5.2f", fps);
+        std::string fpsStr = buf;
+        // Append the FPS value to the window title details
+        theWindowTitle += " | FPS: " + fpsStr;
+        // Convert the new window title to a c_str and set it
+        const char* pszConstString = theWindowTitle.c_str();
+        glutSetWindowTitle(pszConstString);
+        // Reset the FPS frame counter and set the initial time to be now
+        fpsFrameCount = 0;
+        t0Value = glutGet(GLUT_ELAPSED_TIME);
+    }
+    else // FPS calculation time interval hasn't elapsed yet? Simply increment the FPS frame counter
+        fpsFrameCount++;
+}
+
 static void display()
 {
-
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     cgGLSetStateMatrixParameter(modelView, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
@@ -60,6 +89,7 @@ static void display()
 
     cgGLDisableProfile(vertexProfile);
     cgGLDisableProfile(fragmentProfile);
+    calcFPS(1000, "Advanced Computer Graphics | Assignment 1");
     glutSwapBuffers();
 }
 
