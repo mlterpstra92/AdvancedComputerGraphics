@@ -1,12 +1,20 @@
 struct OurOutputType {
-float4 position : POSITION;
-float4 color : COLOR;
+	float4 position : POSITION;
+	float4 color : COLOR;
+	float3 normal : TEXCOORD0; // added
+	float3 viewdir : TEXCOORD1; // added
 };
+
 OurOutputType main(float4 position : POSITION,
-uniform float4x4 modelViewProj)
+float4 normal : NORMAL, // added
+uniform float4x4 modelViewProj,
+uniform float4x4 modelView, // added
+uniform float4x4 modelViewIT) // added
 {
-OurOutputType OUT;
-OUT.position = mul(modelViewProj, position);
-OUT.color = position;
-return OUT;
+	OurOutputType OUT;
+	OUT.position = mul(modelViewProj, position);
+	OUT.color = position;
+	OUT.viewdir = -(mul(modelView, position).xyz); // VIEW Space
+	OUT.normal = mul(modelViewIT, normal).xyz; // EYE Space
+	return OUT;
 }

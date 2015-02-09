@@ -9,17 +9,27 @@ CGcontext context = NULL;
 CGprogram myVertexProgram = NULL;
 CGprofile vertexProfile = CG_PROFILE_VP40;
 CGparameter modelViewProj = NULL;
+CGparameter modelView = NULL;
+CGparameter modelViewIT = NULL;
+CGprofile fragmentProfile = CG_PROFILE_FP40;
+CGprogram myFragmentProgram = NULL;
+
 static void display()
 {
 
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    cgGLSetStateMatrixParameter(modelViewProj,CG_GL_MODELVIEW_PROJECTION_MATRIX,CG_GL_MATRIX_IDENTITY);
+
+    cgGLSetStateMatrixParameter(modelView, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetStateMatrixParameter(modelViewIT, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_INVERSE_TRANSPOSE);
+    cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLEnableProfile(vertexProfile);
     cgGLBindProgram(myVertexProgram);
-      
-    glutWireSphere(1.0, 10, 10);
+    cgGLEnableProfile(fragmentProfile);
+    cgGLBindProgram(myFragmentProgram);
+    glutSolidSphere(3.0, 10, 10);
 
     cgGLDisableProfile(vertexProfile);
+    cgGLDisableProfile(fragmentProfile);
     glutSwapBuffers();
 }
 
@@ -69,12 +79,25 @@ int main (int argc, char *argv[])
         return -1;
     }
     cgGLLoadProgram(myVertexProgram);
-    modelViewProj = cgGetNamedParameter(myVertexProgram, "modelViewProj");
-    if (!modelViewProj)
+    myFragmentProgram = cgCreateProgramFromFile(context, CG_SOURCE, "colorful_f.cg", fragmentProfile, "main", NULL);
+    if(!myFragmentProgram)
     {
-        printf("Parameter modelViewProj was not defined in the shader\n");
+        printf("Couldn’t load fragment program.\n");
+        printf("%s\n",cgGetLastListing(context));
+        return 0;
+    }
+    cgGLLoadProgram(myFragmentProgram);
+
+    modelViewProj = cgGetNamedParameter(myVertexProgram, "modelViewProj");
+    modelView = cgGetNamedParameter(myVertexProgram, "modelView");
+    modelViewIT = cgGetNamedParameter(myVertexProgram, "modelViewIT");
+
+    if (!(modelViewProj && modelView && modelViewIT))
+    {
+        printf("Parameter modelViewProj, modelView or modelViewIT was not defined in the shader\n");
         return -2;
     }
+
     //Enter main loop
     glutMainLoop();
         

@@ -1,0 +1,11 @@
+const float3 lightdir = normalize(float3(0.5, 0.5, 1));
+const float shininess = 100.0;
+float4 main(float4 color : COLOR, float3 normal : TEXCOORD0, float3 viewdir: TEXCOORD1): COLOR
+{
+	float3 norm_normal = normalize(normal);
+	float diffuse = max(dot(norm_normal, lightdir), 0.0);
+	float3 halfvec = normalize(lightdir + viewdir);
+	float specular = pow(max(dot(norm_normal, halfvec), 0.0), shininess);
+	float3 rgb = diffuse * color + specular * float3(0.8, 0.8, 0.8);
+	return float4(rgb, 1.0);
+}
