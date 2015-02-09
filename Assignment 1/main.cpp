@@ -3,6 +3,12 @@
 #include <GL/glut.h>
 #include <Cg/cg.h>
 #include <Cg/cgGL.h>
+#include <iostream>
+#include <vector>
+#include "glm.h"
+#include "glm/glm.hpp"
+
+using namespace std;
 
 int w_width=512, w_height=512;
 CGcontext context = NULL;
@@ -11,8 +17,22 @@ CGprofile vertexProfile = CG_PROFILE_VP40;
 CGparameter modelViewProj = NULL;
 CGparameter modelView = NULL;
 CGparameter modelViewIT = NULL;
+CGparameter shininess = NULL;
+CGparameter lightdir = NULL;
 CGprofile fragmentProfile = CG_PROFILE_FP40;
 CGprogram myFragmentProgram = NULL;
+float shininess_val = 100.0;
+float lightdir_val_x = 0.5;
+float lightdir_val_y = 0.5;
+float lightdir_val_z = 1.0;
+int last_called = 0;
+int frames = 0;
+float bounce_y = 0.02;
+GLMmodel* teapot = NULL;
+
+vector<glm::vec3> teapot_vertices;
+vector<glm::vec3> teapot_normals;
+vector<glm::vec3> teapot_faces;
 
 static void display()
 {
@@ -22,11 +42,21 @@ static void display()
     cgGLSetStateMatrixParameter(modelView, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetStateMatrixParameter(modelViewIT, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_INVERSE_TRANSPOSE);
     cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetParameter1f(shininess, shininess_val);
+    cgGLSetParameter3f(lightdir, lightdir_val_x, lightdir_val_y, lightdir_val_z);
     cgGLEnableProfile(vertexProfile);
     cgGLBindProgram(myVertexProgram);
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(myFragmentProgram);
-    glutSolidSphere(3.0, 10, 10);
+
+    if (teapot != NULL)
+    {
+        glmDrawVBO(teapot);
+    }
+    else
+    {
+        glutSolidSphere(3.0, 10, 10);
+    }
 
     cgGLDisableProfile(vertexProfile);
     cgGLDisableProfile(fragmentProfile);
@@ -64,11 +94,82 @@ static void initializeGlut(int *argc, char *argv[])
         0, 1, 0);// up
 }
 
+void keyboard(unsigned char key, int x, int y)
+{
+    switch(key)
+    {
+        case '+':
+            shininess_val += 10;
+            break;
+        case '-':
+            if (shininess_val < 0)
+            {
+                shininess_val = 0;
+            }
+            else
+            {
+                shininess_val -= 10;
+            }
+            break;
+        case 'X':
+            lightdir_val_x += 0.1;
+            break;
+        case 'x':
+            lightdir_val_x -= 0.1;
+            break;
+        case 'Y':
+            lightdir_val_y += 0.1;
+            break;
+        case 'y':
+            lightdir_val_y -= 0.1;
+            break;
+        case 'Z':
+            lightdir_val_z += 0.1;
+            break;
+        case 'z':
+            lightdir_val_z -= 0.1;
+            break;
+        default:
+            break;
+    }
+    glutPostRedisplay();
+}
+
+void idle()
+{
+    int current_time = glutGet(GLUT_ELAPSED_TIME);
+    int elapsed_time = current_time - last_called;
+    last_called = current_time;
+    frames += 1;
+
+    float angle = elapsed_time * (360.0 / 3000.0);
+    glRotatef(angle, 0.0, 1.0, 0.0);
+
+    if (frames % 40 == 0)
+    {   
+        frames = 0;
+        bounce_y *= -1.0;
+    }
+    glTranslatef(0.0, bounce_y, 0.0);
+
+    glutPostRedisplay();
+}
+
 int main (int argc, char *argv[])
 {
     //Initialize GLUT
     initializeGlut(&argc, argv);
+    glutKeyboardFunc(keyboard);
+    glutIdleFunc(idle);
 
+    char filename[100];
+    snprintf(filename, sizeof(char) * sizeof(filename), "%s.obj", "teapot");
+    teapot = glmReadOBJ(filename);
+    glmUnitize(teapot);
+    glmScale(teapot, 3);
+    glmFacetNormals(teapot);
+    glmVertexNormals(teapot, 90);
+    glmInitVBO(teapot);
     //Compile shader from file
     context = cgCreateContext();
     myVertexProgram = cgCreateProgramFromFile(context, CG_SOURCE, "colorful_v.cg", vertexProfile, "main", NULL);
@@ -91,8 +192,11 @@ int main (int argc, char *argv[])
     modelViewProj = cgGetNamedParameter(myVertexProgram, "modelViewProj");
     modelView = cgGetNamedParameter(myVertexProgram, "modelView");
     modelViewIT = cgGetNamedParameter(myVertexProgram, "modelViewIT");
+    shininess = cgGetNamedParameter(myFragmentProgram, "shininess");
+    lightdir = cgGetNamedParameter(myFragmentProgram, "lightdir");
 
-    if (!(modelViewProj && modelView && modelViewIT))
+
+    if (!(modelViewProj && modelView && modelViewIT && shininess && lightdir))
     {
         printf("Parameter modelViewProj, modelView or modelViewIT was not defined in the shader\n");
         return -2;
