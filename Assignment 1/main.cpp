@@ -189,6 +189,7 @@ int main (int argc, char *argv[])
 {
     //Initialize GLUT
     initializeGlut(&argc, argv);
+    glutSetWindowTitle("Advanced Computer Graphics | Assignment 1");
     glutKeyboardFunc(keyboard);
     glutIdleFunc(idle);
 
