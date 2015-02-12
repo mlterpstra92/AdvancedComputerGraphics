@@ -10,7 +10,7 @@
 
 using namespace std;
 
-int w_width=512, w_height=512;
+int w_width=1080, w_height=1080;
 CGcontext context = NULL;
 CGprogram myVertexProgram = NULL;
 CGprofile vertexProfile = CG_PROFILE_VP40;
@@ -194,7 +194,7 @@ int main (int argc, char *argv[])
     glutIdleFunc(idle);
 
     char filename[100];
-    snprintf(filename, sizeof(char) * sizeof(filename), "%s.obj", "teapot");
+    snprintf(filename, sizeof(char) * sizeof(filename), "%s.obj", "B-747");
     teapot = glmReadOBJ(filename);
     glmUnitize(teapot);
     glmScale(teapot, 3);
