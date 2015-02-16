@@ -1,26 +1,40 @@
 Question 1: What is the advantage of using Vertex Arrays above immediate 
 mode rendering?
+Immediate mode does a lot of functions calls, which is very inefficient.
+Vertex arrays reach the same result, but use only a single function call.
+So, using Vertex arrays is faster than using immediate mode rendering.
 
 Question 2: What are uvec and vvec in the Surfel structure? What properties of 
 the splat do they represent?
+uvec and vvec represent the orientation and size of a splat. 
 
 Question 3: On the slide, it is not shown how to compute peye. This
 is the position in of the point in eye (view)-space. What matrix should be
 used to transform a position from object-space to eye-space?
+Modelview matrix. 
 
 Question 4: Does it matter whether we pass the surfel color to the
 vertex shader in a texture coordinate (glTexCoord...) or as the vertex color
 (glColor...)? Why (not)?
+Using color makes sure that CG knows what variable to use as color.
+With textCoord, openGL does not know this. So OpenGL has to be told which variable represents a color.
 
 Question 5: What matrix should you use to transform the u and v vectors? Is
 it different from the matrix you would use to transform a normal? Why (not)?
+ModelView Inverse Transpose, since we are transforming vectors instead of vertices.
+This is the same as with normals, since normals are also vectors.
 
 Question 6: Why would we want to move as much computations as
 possible from the fragment program to the vertex program, or even from the
 vertex program to the application?
+Because a computation in the fragment program is done for every fragment ('potential-pixel'), which are a lot.
+The vertex program only performs computations at each vertex, which are less than the fragments.
+The application performs computations on every frame, or only once. 
 
 Question 7: Does it matter which values the outputs have when a
 fragment is discarded?
+No, as soon a fragment is discarded, the data is not processed through the remaining part of the pipeline.
+
 
 Question 8: What is the difference between a texture and a render buffer?
 
