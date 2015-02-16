@@ -14,14 +14,17 @@
 
 CGcontext	context;
 CGprofile	vertexProfile, fragmentProfile;
-CGprogram   vertexProgram;
+CGprogram   vertexProgram, fragmentProgram;
 float       near_val, bottom_val, top_val; 
 CGparameter modelView = NULL;
 CGparameter modelViewProj = NULL;
+CGparameter modelViewIT = NULL;
 CGparameter wsize = NULL;
 CGparameter near = NULL;
+CGparameter near_f = NULL;
 CGparameter top = NULL;
 CGparameter bottom = NULL;
+CGparameter epsilon = NULL;
 
 int w_width=512, w_height=512;
 
@@ -113,8 +116,10 @@ void display()
     cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetParameter2f(wsize, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     cgGLSetParameter1f(near, near_val);
+    cgGLSetParameter1f(near_f, near_val);
     cgGLSetParameter1f(top, top_val);
     cgGLSetParameter1f(bottom, bottom_val);
+    cgGLSetParameter1f(epsilon, 1e-4);
 
     //Select coordinates, color and vectors(?) from points
     glClientActiveTexture(GL_TEXTURE0);
@@ -132,10 +137,11 @@ void display()
     glVertexPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].pos);
     glEnableClientState(GL_VERTEX_ARRAY);
 
-
     //Bind and load the shader
     cgGLEnableProfile(vertexProfile);
     cgGLBindProgram(vertexProgram);
+    cgGLEnableProfile(fragmentProfile);
+    cgGLBindProgram(fragmentProgram);
 
     //Actually draw the thing
     glDrawArrays(GL_POINTS, 0, numpoints);
@@ -148,9 +154,9 @@ void display()
     glClientActiveTexture(GL_TEXTURE2);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
 
     cgGLDisableProfile(vertexProfile);    
+    cgGLDisableProfile(fragmentProfile);
     glutSwapBuffers();
 }
 
@@ -165,7 +171,6 @@ void chooseCgProfiles()
          cgGetProfileString(vertexProfile));
     printf("fragment profile: %s\n",
          cgGetProfileString(fragmentProfile));
-
 }
 
 /* Load Cg program from disk */
@@ -195,10 +200,15 @@ void loadCgPrograms()
     vertexProgram = loadCgProgram(vertexProfile, "pointscalingvertex.cg");
     modelView = cgGetNamedParameter(vertexProgram, "modelView");
     modelViewProj = cgGetNamedParameter(vertexProgram, "modelViewProj");
+    modelViewIT = cgGetNamedParameter(vertexProgram, "modelViewIT");
     wsize = cgGetNamedParameter(vertexProgram, "wsize");
     top = cgGetNamedParameter(vertexProgram, "top");
     bottom = cgGetNamedParameter(vertexProgram, "bottom");
     near = cgGetNamedParameter(vertexProgram, "near");
+
+    fragmentProgram = loadCgProgram(fragmentProfile, "perspectivelycorrect.cg");
+    epsilon = cgGetNamedParameter(fragmentProgram, "epsilon");
+    near_f = cgGetNamedParameter(fragmentProgram, "near");
 }
 
 void idle()

@@ -1,0 +1,29 @@
+void main( 
+	float4 col : COLOR, 
+	float3 v1 : TEXCOORD1,
+	float3 v2 : TEXCOORD2, 
+	float3 v3 : TEXCOORD3,
+	float depthin : TEXCOORD4, 
+	float2 wpos : WPOS,
+
+	uniform float2 unproj_scale, 
+	uniform float2 unproj_offset,
+	uniform float near,
+	uniform float zb_scale, 
+	uniform float zb_offset,
+	uniform float epsilon,
+
+	out float depthout : DEPTH,
+	out float4 colorout : COLOR0)
+{
+	float3 qn = float3(wpos*unproj_scale - unproj_offset, -near);
+	float dn = dot(qn, v3);
+	float u = dot(qn, v1)/dn;
+	float v = dot(qn, v2)/dn;
+	float dist_sq = u*u + v*v;
+	if(dist_sq > 1.0)
+		discard;
+	float qz = qn.z * depthin/dn + epsilon;
+	depthout = zb_scale/qz + zb_offset;
+	colorout = col;
+}
