@@ -1,0 +1,27 @@
+Question 1: What is the advantage of using Vertex Arrays above immediate 
+mode rendering?
+
+Question 2: What are uvec and vvec in the Surfel structure? What properties of 
+the splat do they represent?
+
+Question 3: On the slide, it is not shown how to compute peye. This
+is the position in of the point in eye (view)-space. What matrix should be
+used to transform a position from object-space to eye-space?
+
+Question 4: Does it matter whether we pass the surfel color to the
+vertex shader in a texture coordinate (glTexCoord...) or as the vertex color
+(glColor...)? Why (not)?
+
+Question 5: What matrix should you use to transform the u and v vectors? Is
+it different from the matrix you would use to transform a normal? Why (not)?
+
+Question 6: Why would we want to move as much computations as
+possible from the fragment program to the vertex program, or even from the
+vertex program to the application?
+
+Question 7: Does it matter which values the outputs have when a
+fragment is discarded?
+
+Question 8: What is the difference between a texture and a render buffer?
+
+Question 9: Why must depth write be disabled when blending the fragments?
