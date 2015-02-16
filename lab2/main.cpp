@@ -44,8 +44,6 @@ void handleCgError()
 
 void display() 
 {
-    int curTime = glutGet(GLUT_ELAPSED_TIME);    
-
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -57,21 +55,31 @@ void display()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(4, 0, -3, 0, 0, 0, 0, 1, 0);
-    
-    glRotatef((float)curTime/20.0, 0, 1, 0);
-    
-    glColor3f(1.0,1.0,1.0);
-    
-    glBegin(GL_QUADS);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex3f(-1.0f, -1.0f, 0.0f);
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(-1.0f, 1.0f, 0.0f);
-    glColor3f(1.0f, 0.5f, 0.0f);
-    glVertex3f(1.0f, 1.0f, 0.0f);
-    glColor3f(0.5f, 1.0f, 0.0f);
-    glVertex3f(1.0f, -1.0f, 0.0f);            
-    glEnd();    
+
+    //Select coordinates, color and vectors(?) from points
+    glClientActiveTexture(GL_TEXTURE0);
+    glTexCoordPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].uvec);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glClientActiveTexture(GL_TEXTURE1);
+    glTexCoordPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].vvec);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].pos);
+    glColorPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].color);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+
+    //Actually draw the thing
+    glDrawArrays(GL_POINTS, 0, numpoints);
+
+    //Disable after drawing
+    glClientActiveTexture(GL_TEXTURE0);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glClientActiveTexture(GL_TEXTURE1);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
     
     glutSwapBuffers();
 }
