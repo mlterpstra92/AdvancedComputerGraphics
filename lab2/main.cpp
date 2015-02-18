@@ -60,6 +60,24 @@ void glhPerspectivef2(float fovyInDegrees, float aspectRatio, float znear, float
     float left = -right;
     bottom_val = -top_val;
     near_val = znear;
+    // Based on: https://www.cs.mtsu.edu/~jhankins/files/4250/notes/WinToView/WinToViewMap.html
+    float xvmax = right;
+    float xvmin = left;
+    float xwmax = glutGet(GLUT_WINDOW_WIDTH);
+    float xwmin = 0;
+
+    float yvmax = top_val;
+    float yvmin = bottom_val;
+    float ywmax = glutGet(GLUT_WINDOW_HEIGHT);
+    float ywmin = 0;
+
+    x_scale = (xvmax - xvmin) / (xwmax - xwmin);
+    y_scale = (yvmax - yvmin) / (ywmax - ywmin);
+    x_offset = (xwmax * xvmin - xwmin * xvmax) / (xwmax - xwmin);
+    y_offset = (ywmax * yvmin - ywmin * yvmax) / (ywmax - ywmin);
+
+    std::cout << x_scale << ", " << y_scale << std::endl;
+    std::cout << x_offset << ", " << y_offse << std::endl;
     glFrustum(left, right, bottom_val, top_val, znear, zfar);
 }
 
