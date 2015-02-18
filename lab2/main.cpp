@@ -16,6 +16,8 @@ CGcontext	context;
 CGprofile	vertexProfile, fragmentProfile;
 CGprogram   vertexProgram, fragmentProgram;
 float       near_val, bottom_val, top_val; 
+float x_scale, y_scale;
+float x_offset, y_offset;
 CGparameter modelView = NULL;
 CGparameter modelViewProj = NULL;
 CGparameter modelViewIT = NULL;
@@ -25,6 +27,8 @@ CGparameter near_f = NULL;
 CGparameter top = NULL;
 CGparameter bottom = NULL;
 CGparameter epsilon = NULL;
+CGparameter unproj_scale = NULL;
+CGparameter unproj_offset = NULL;
 
 int w_width=512, w_height=512;
 
@@ -120,6 +124,8 @@ void display()
     cgGLSetParameter1f(top, top_val);
     cgGLSetParameter1f(bottom, bottom_val);
     cgGLSetParameter1f(epsilon, 1e-4);
+    cgGLSetParameter2f(unproj_scale, x_scale, y_scale);
+    cgGLSetParameter2f(unproj_offset, x_offset, y_offset);
 
     //Select coordinates, color and vectors(?) from points
     glClientActiveTexture(GL_TEXTURE0);
@@ -209,6 +215,8 @@ void loadCgPrograms()
     fragmentProgram = loadCgProgram(fragmentProfile, "perspectivelycorrect.cg");
     epsilon = cgGetNamedParameter(fragmentProgram, "epsilon");
     near_f = cgGetNamedParameter(fragmentProgram, "near");
+    unproj_scale = cgGetNamedParameter(fragmentProgram, "unproj_scale");
+    unproj_offset = cgGetNamedParameter(fragmentProgram, "unproj_offset");
 }
 
 void idle()
