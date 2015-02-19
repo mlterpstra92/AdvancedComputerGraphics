@@ -24,6 +24,7 @@ void main(
 	if(dist_sq > 1.0)
 		discard;
 	float qz = qn.z * depthin/dn + epsilon;
+	// zb_scale/qz = lambda
 	depthout = zb_scale/qz + zb_offset;
 	colorout = col;
 }

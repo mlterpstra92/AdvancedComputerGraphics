@@ -31,5 +31,4 @@ void main(float4 pvec        : POSITION,
 	v2 = cross(-uEye, peye);
 	v3 = cross(uEye, vEye);
 	depth = dot(peye, v3);
-
 }

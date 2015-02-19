@@ -34,6 +34,10 @@ CGparameter zb_offset = NULL;
 
 int w_width=512, w_height=512;
 
+GLuint fbo         = 0;
+GLuint depthbuffer = 0;
+GLuint color_tex   = 0;
+
 struct Surfel
 {
     float pos[3];
@@ -221,6 +225,28 @@ void reshape(int width, int height)
 {
     w_width = width;
     w_height = height;
+    glDeleteFramebuffersEXT(1, &fbo);
+    glDeleteRenderbuffersEXT(1, &depthbuffer);
+    glDeleteTextures(1, &color_tex);
+    glGenTextures(1, &color_tex);
+    glBindTexture(GL_TEXTURE_2D, color_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0,  GL_RGBA16F,  w_width, w_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glGenRenderbuffersEXT(1, &depthbuffer);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthbuffer);
+    // GL_DEPTH_COMPONENT??
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,  GL_DEPTH_COMPONENT, w_width, w_height);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+    glGenFramebuffersEXT(1, &fbo);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    // GL_COLOR_ATTACHMENT0??
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_tex, 0);
+    // GL_COLOR_ATTACHMENT0??
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER_EXT, depthbuffer);
+    assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     glViewport(0, 0, w_width, w_height);
 }
 
