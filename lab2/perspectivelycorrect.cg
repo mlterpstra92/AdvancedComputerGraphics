@@ -25,5 +25,6 @@ void main(
 		discard;
 	float qz = qn.z * depthin/dn + epsilon;
 	depthout = zb_scale/qz + zb_offset;
-	colorout = col;
+	// colorout = col;
+	colorout = float4(qn.xy * 100, 0.0, 1.0);
 }
