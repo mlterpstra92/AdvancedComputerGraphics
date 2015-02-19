@@ -4,7 +4,6 @@ void main(float4 pvec        : POSITION,
 		  float3 vvec        : TEXCOORD2,
 		  uniform float4x4 modelViewProj,
 		  uniform float4x4 modelView,
-		  uniform float4x4 modelViewIT,
 		  uniform float2   wsize,
 		  uniform float    near,
 		  uniform float    top,
@@ -12,11 +11,11 @@ void main(float4 pvec        : POSITION,
 
 		  out float4 pout    : POSITION,
 		  out float  psize   : PSIZE,
-		  //TODO: Make this work with TEXCOORD0
 		  out float4 cout    : COLOR,
 		  out float3 v1      : TEXCOORD1,
 		  out float3 v2      : TEXCOORD2,
-		  out float3 v3      : TEXCOORD3
+		  out float3 v3      : TEXCOORD3,
+		  out float depth    : TEXCOORD4
 		)
 {
 	pout = mul(modelViewProj, pvec);
@@ -25,10 +24,12 @@ void main(float4 pvec        : POSITION,
 	psize = 2.0 * radius * (-near / peye.z) * (wsize.y / (top - bottom));
 	cout = color;
 
-	float3x3 modelViewITsmall = float3x3(modelViewIT);
-	float3 uEye = mul(modelViewITsmall, uvec);
-	float3 vEye = mul(modelViewITsmall, vvec);
+	float3x3 modelViewSmall = float3x3(modelView);
+	float3 uEye = mul(modelViewSmall, uvec);
+	float3 vEye = mul(modelViewSmall, vvec);
 	v1 = cross(peye, -vEye);
 	v2 = cross(-uEye, peye);
 	v3 = cross(uEye, vEye);
+	depth = dot(peye, v3);
+
 }

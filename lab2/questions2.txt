@@ -21,8 +21,7 @@ With textCoord, openGL does not know this. So OpenGL has to be told which variab
 
 Question 5: What matrix should you use to transform the u and v vectors? Is
 it different from the matrix you would use to transform a normal? Why (not)?
-ModelView Inverse Transpose, since we are transforming vectors instead of vertices.
-This is the same as with normals, since normals are also vectors.
+TODO:Modelview, but why?
 
 Question 6: Why would we want to move as much computations as
 possible from the fragment program to the vertex program, or even from the

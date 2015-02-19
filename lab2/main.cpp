@@ -18,9 +18,9 @@ CGprogram   vertexProgram, fragmentProgram;
 float       near_val, bottom_val, top_val; 
 float x_scale, y_scale;
 float x_offset, y_offset;
+float zb_scale_val, zb_offset_val;
 CGparameter modelView = NULL;
 CGparameter modelViewProj = NULL;
-CGparameter modelViewIT = NULL;
 CGparameter wsize = NULL;
 CGparameter near = NULL;
 CGparameter near_f = NULL;
@@ -29,6 +29,8 @@ CGparameter bottom = NULL;
 CGparameter epsilon = NULL;
 CGparameter unproj_scale = NULL;
 CGparameter unproj_offset = NULL;
+CGparameter zb_scale = NULL;
+CGparameter zb_offset = NULL;
 
 int w_width=512, w_height=512;
 
@@ -60,6 +62,25 @@ void glhPerspectivef2(float fovyInDegrees, float aspectRatio, float znear, float
     float left = -right;
     bottom_val = -top_val;
     near_val = znear;
+    // Based on: https://www.cs.mtsu.edu/~jhankins/files/4250/notes/WinToView/WinToViewMap.html
+    float xvmax = right;
+    float xvmin = left;
+    float xwmax = glutGet(GLUT_WINDOW_WIDTH);
+    float xwmin = 0;
+
+    float yvmax = top_val;
+    float yvmin = bottom_val;
+    float ywmax = glutGet(GLUT_WINDOW_HEIGHT);
+    float ywmin = 0;
+
+    x_scale = (xvmax - xvmin) / (xwmax - xwmin);
+    y_scale = (yvmax - yvmin) / (ywmax - ywmin);
+    x_offset = (xvmax - xvmin) / 2;
+    y_offset = (yvmax - yvmin) / 2;
+
+    zb_scale_val = (zfar * znear) / (zfar - znear);
+    zb_offset_val = zfar / (zfar - znear);
+
     glFrustum(left, right, bottom_val, top_val, znear, zfar);
 }
 
@@ -95,6 +116,8 @@ void display()
     cgGLSetParameter1f(epsilon, 1e-4);
     cgGLSetParameter2f(unproj_scale, x_scale, y_scale);
     cgGLSetParameter2f(unproj_offset, x_offset, y_offset);
+    cgGLSetParameter1f(zb_scale, zb_scale_val);
+    cgGLSetParameter1f(zb_offset, zb_offset_val);
 
     //Select coordinates, color and vectors(?) from points
     glClientActiveTexture(GL_TEXTURE0);
@@ -175,7 +198,6 @@ void loadCgPrograms()
     vertexProgram = loadCgProgram(vertexProfile, "pointscalingvertex.cg");
     modelView = cgGetNamedParameter(vertexProgram, "modelView");
     modelViewProj = cgGetNamedParameter(vertexProgram, "modelViewProj");
-    modelViewIT = cgGetNamedParameter(vertexProgram, "modelViewIT");
     wsize = cgGetNamedParameter(vertexProgram, "wsize");
     top = cgGetNamedParameter(vertexProgram, "top");
     bottom = cgGetNamedParameter(vertexProgram, "bottom");
@@ -186,6 +208,8 @@ void loadCgPrograms()
     near_f = cgGetNamedParameter(fragmentProgram, "near");
     unproj_scale = cgGetNamedParameter(fragmentProgram, "unproj_scale");
     unproj_offset = cgGetNamedParameter(fragmentProgram, "unproj_offset");
+    zb_scale = cgGetNamedParameter(fragmentProgram, "zb_scale");
+    zb_offset = cgGetNamedParameter(fragmentProgram, "zb_offset");
 }
 
 void idle()
