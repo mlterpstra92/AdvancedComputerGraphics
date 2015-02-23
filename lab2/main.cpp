@@ -145,46 +145,42 @@ void display()
     cgGLBindProgram(vertexProgram);
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(fragmentProgram);
-    // cgGLBindProgram(normalizeProgram);
+    cgGLBindProgram(normalizeProgram);
 
+    // Draw to FBO
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthbuffer);
-    // Fill depth buffer with depth values
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
+    glDrawArrays(GL_POINTS, 0, numpoints);
 
+    // Visibility splatting pass
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
     glDrawArrays(GL_POINTS, 0, numpoints);
-
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_FALSE);
+    // Attach depth buffer to FBO
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
 
     //Enable color writing and alpha blending
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, color_tex, 0);
     glDrawArrays(GL_POINTS, 0, numpoints);
 
+
+    // Draw the texture to the screen
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     glClearColor(0, 0, 0, 1e-6);
-    cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+    // cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
 
     cgGLSetTextureParameter(texture_input, color_tex);
     cgGLEnableTextureParameter(texture_input);
-        //glDrawArrays(GL_POINTS, 0, numpoints);
 
-    //glEnable(GL_TEXTURE_2D);
-    glColor3f(1, 0, 1);
-    float aspect = (float)w_width/w_height;
-    // The screen is centered at (0,0,0), so draw the texture with the center there.
+    float ratio = (float)glutGet(GLUT_WINDOW_WIDTH)/glutGet(GLUT_WINDOW_HEIGHT);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 0.0); glVertex2f(-1.0 * aspect, -1.0);
-    glTexCoord2f(1.0, 0.0); glVertex2f(1.0 * aspect, -1.0);
-    glTexCoord2f(1.0, 1.0); glVertex2f(1.0 * aspect, 1.0);
-    glTexCoord2f(0.0, 1.0); glVertex2f(-1.0 * aspect, 1.0);
+    glTexCoord2f(0.0, 0.0); glVertex2f(-1.0 * ratio, -1.0);
+    glTexCoord2f(1.0, 0.0); glVertex2f(1.0 * ratio, -1.0);
+    glTexCoord2f(1.0, 1.0); glVertex2f(1.0 * ratio, 1.0);
+    glTexCoord2f(0.0, 1.0); glVertex2f(-1.0 * ratio, 1.0);
     glEnd();
-    glColor3f(0, 0, 0);
 
     //Disable after drawing
     glClientActiveTexture(GL_TEXTURE0);
@@ -197,7 +193,7 @@ void display()
 
     cgGLDisableProfile(vertexProfile);    
     cgGLDisableProfile(fragmentProfile);
-    //glDepthMask(GL_TRUE);
+    glDepthMask(GL_TRUE);
     glutSwapBuffers();
 }
 
