@@ -19,7 +19,7 @@ CGparameter modelView = NULL;
 CGparameter modelViewIT = NULL;
 CGparameter shininess = NULL;
 CGparameter lightdir = NULL;
-CGprofile fragmentProfile = CG_PROFILE_FP40;
+CGprofile fragmentProfile = CG_PROFILE_FP40; 
 CGprogram myFragmentProgram = NULL;
 float shininess_val = 100.0;
 float lightdir_val_x = 0.5;
@@ -192,6 +192,8 @@ int main (int argc, char *argv[])
     glutSetWindowTitle("Advanced Computer Graphics | Assignment 1");
     glutKeyboardFunc(keyboard);
     glutIdleFunc(idle);
+    vertexProfile =  cgGLGetLatestProfile(CG_GL_VERTEX);
+    fragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
 
     char filename[100];
     snprintf(filename, sizeof(char) * sizeof(filename), "%s.obj", "B-747");
