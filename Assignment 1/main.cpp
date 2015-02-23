@@ -193,7 +193,9 @@ int main (int argc, char *argv[])
     glutKeyboardFunc(keyboard);
     glutIdleFunc(idle);
     vertexProfile =  cgGLGetLatestProfile(CG_GL_VERTEX);
+    std::cout << "Vertex profile: " << cgGetProfileString(vertexProfile) << std::endl;
     fragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+    std::cout << "Vertex profile: " << cgGetProfileString(fragmentProfile) << std::endl;
 
     char filename[100];
     snprintf(filename, sizeof(char) * sizeof(filename), "%s.obj", "B-747");
