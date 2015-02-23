@@ -13,7 +13,7 @@ void main(
 	uniform float zb_offset,
 	uniform float epsilon,
 
-	out float depthout : DEPTH,
+	out float  depthout : DEPTH,
 	out float4 colorout : COLOR0)
 {
 	float3 qn = float3(wpos*unproj_scale - unproj_offset, -near);

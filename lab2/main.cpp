@@ -14,7 +14,7 @@
 
 CGcontext	context;
 CGprofile	vertexProfile, fragmentProfile;
-CGprogram   vertexProgram, fragmentProgram;
+CGprogram   vertexProgram, fragmentProgram, normalizeProgram;
 float       near_val, bottom_val, top_val; 
 float x_scale, y_scale;
 float x_offset, y_offset;
@@ -31,6 +31,7 @@ CGparameter unproj_scale = NULL;
 CGparameter unproj_offset = NULL;
 CGparameter zb_scale = NULL;
 CGparameter zb_offset = NULL;
+CGparameter texture_input = NULL;
 
 int w_width=512, w_height=512;
 
@@ -117,7 +118,7 @@ void display()
     cgGLSetParameter1f(near_f, near_val);
     cgGLSetParameter1f(top, top_val);
     cgGLSetParameter1f(bottom, bottom_val);
-    cgGLSetParameter1f(epsilon, 0.001);
+    cgGLSetParameter1f(epsilon, 10e-4);
     cgGLSetParameter2f(unproj_scale, x_scale, y_scale);
     cgGLSetParameter2f(unproj_offset, x_offset, y_offset);
     cgGLSetParameter1f(zb_scale, zb_scale_val);
@@ -144,23 +145,46 @@ void display()
     cgGLBindProgram(vertexProgram);
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(fragmentProgram);
+    // cgGLBindProgram(normalizeProgram);
+
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthbuffer);
+    // Fill depth buffer with depth values
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
 
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
-    // Depthbuffer is fileld with depth values
-    GLenum DrawBuffers[] = {GL_DEPTH_ATTACHMENT};
-    glDrawBuffers(1, DrawBuffers);
-
-    //Enable color writing and alpha blending
-    glEnable(GL_BLEND);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glDrawArrays(GL_POINTS, 0, numpoints);
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_FALSE);
 
-    glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, fbo);
+    //Enable color writing and alpha blending
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, color_tex, 0);
     glDrawArrays(GL_POINTS, 0, numpoints);
+
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glClearColor(0, 0, 0, 1e-6);
+    cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+
+    cgGLSetTextureParameter(texture_input, color_tex);
+    cgGLEnableTextureParameter(texture_input);
+        //glDrawArrays(GL_POINTS, 0, numpoints);
+
+    //glEnable(GL_TEXTURE_2D);
+    glColor3f(1, 0, 1);
+    float aspect = (float)w_width/w_height;
+    // The screen is centered at (0,0,0), so draw the texture with the center there.
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 0.0); glVertex2f(-1.0 * aspect, -1.0);
+    glTexCoord2f(1.0, 0.0); glVertex2f(1.0 * aspect, -1.0);
+    glTexCoord2f(1.0, 1.0); glVertex2f(1.0 * aspect, 1.0);
+    glTexCoord2f(0.0, 1.0); glVertex2f(-1.0 * aspect, 1.0);
+    glEnd();
+    glColor3f(0, 0, 0);
 
     //Disable after drawing
     glClientActiveTexture(GL_TEXTURE0);
@@ -173,7 +197,7 @@ void display()
 
     cgGLDisableProfile(vertexProfile);    
     cgGLDisableProfile(fragmentProfile);
-    glDepthMask(GL_TRUE);
+    //glDepthMask(GL_TRUE);
     glutSwapBuffers();
 }
 
@@ -229,6 +253,9 @@ void loadCgPrograms()
     unproj_offset = cgGetNamedParameter(fragmentProgram, "unproj_offset");
     zb_scale = cgGetNamedParameter(fragmentProgram, "zb_scale");
     zb_offset = cgGetNamedParameter(fragmentProgram, "zb_offset");
+
+    normalizeProgram = loadCgProgram(fragmentProfile, "normalize.cg");
+    texture_input = cgGetNamedParameter(normalizeProgram, "input");
 }
 
 void idle()
