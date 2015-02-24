@@ -140,25 +140,24 @@ void display()
     glVertexPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].pos);
     glEnableClientState(GL_VERTEX_ARRAY);
 
-    //Bind and load the shader
+    //Bind and load the shaders
     cgGLEnableProfile(vertexProfile);
     cgGLBindProgram(vertexProgram);
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(fragmentProgram);
-    cgGLBindProgram(normalizeProgram);
-
+    
     // Draw to FBO
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-    glDrawArrays(GL_POINTS, 0, numpoints);
 
     // Visibility splatting pass
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
     glDrawArrays(GL_POINTS, 0, numpoints);
+    
     // Attach depth buffer to FBO
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
 
-    //Enable color writing and alpha blending
+    // Enable color writing and alpha blending
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
@@ -167,14 +166,14 @@ void display()
 
 
     // Draw the texture to the screen
+    cgGLBindProgram(normalizeProgram);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     glClearColor(0, 0, 0, 1e-6);
-    // cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
 
     cgGLSetTextureParameter(texture_input, color_tex);
     cgGLEnableTextureParameter(texture_input);
 
-    float ratio = (float)glutGet(GLUT_WINDOW_WIDTH)/glutGet(GLUT_WINDOW_HEIGHT);
+    float ratio = (float)w_width / w_height;
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0); glVertex2f(-1.0 * ratio, -1.0);
     glTexCoord2f(1.0, 0.0); glVertex2f(1.0 * ratio, -1.0);
@@ -191,7 +190,7 @@ void display()
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 
-    cgGLDisableProfile(vertexProfile);    
+    cgGLDisableProfile(vertexProfile);
     cgGLDisableProfile(fragmentProfile);
     glDepthMask(GL_TRUE);
     glutSwapBuffers();
