@@ -94,6 +94,145 @@ void handleCgError()
     fprintf(stderr, "Cg error: %s\n", cgGetErrorString(cgGetError()));
 }
 
+
+void prepare()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_TEXTURE_2D);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_TRUE);
+
+    glEnable(GL_DEPTH_TEST);
+
+    //Pass relevant parameters to CG
+    cgGLSetStateMatrixParameter(modelView, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetParameter2f(wsize, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    cgGLSetParameter1f(near, near_val);
+    cgGLSetParameter1f(near_f, near_val);
+    cgGLSetParameter1f(top, top_val);
+    cgGLSetParameter1f(bottom, bottom_val);
+    cgGLSetParameter1f(epsilon, 10e-4);
+    cgGLSetParameter2f(unproj_scale, x_scale, y_scale);
+    cgGLSetParameter2f(unproj_offset, x_offset, y_offset);
+    cgGLSetParameter1f(zb_scale, zb_scale_val);
+    cgGLSetParameter1f(zb_offset, zb_offset_val);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glhPerspectivef2(30.0f, (float)w_width/w_height, 0.1, 100.0);   
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(4, 0, -3, 0, 0, 0, 0, 1, 0);
+
+    //Enable this so OpenGL listens to PSIZE returned by CG
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_ARB);
+
+    glClientActiveTexture(GL_TEXTURE0);
+    glTexCoordPointer(4, GL_FLOAT, sizeof(Surfel), &pts[0].color);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glClientActiveTexture(GL_TEXTURE1);
+    glTexCoordPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].uvec);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glClientActiveTexture(GL_TEXTURE2);
+    glTexCoordPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].vvec);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].pos);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    cgGLEnableProfile(vertexProfile);
+    cgGLBindProgram(vertexProgram);
+    cgGLEnableProfile(fragmentProfile);
+    cgGLBindProgram(fragmentProgram);
+
+
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthbuffer);
+    glDrawArrays(GL_POINTS, 0, numpoints);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+}
+
+
+void final()
+{
+    const int win_width  = glutGet(GLUT_WINDOW_WIDTH);
+    const int win_height = glutGet(GLUT_WINDOW_HEIGHT);
+    const float aspect = (float)win_width/(float)win_height;
+
+    cgGLSetStateMatrixParameter(modelView, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetParameter2f(wsize, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    cgGLSetParameter1f(near, near_val);
+    cgGLSetParameter1f(near_f, near_val);
+    cgGLSetParameter1f(top, top_val);
+    cgGLSetParameter1f(bottom, bottom_val);
+    cgGLSetParameter1f(epsilon, 10e-4);
+    cgGLSetParameter2f(unproj_scale, x_scale, y_scale);
+    cgGLSetParameter2f(unproj_offset, x_offset, y_offset);
+    cgGLSetParameter1f(zb_scale, zb_scale_val);
+    cgGLSetParameter1f(zb_offset, zb_offset_val);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glhPerspectivef2(30.0f, (float)w_width/w_height, 0.1, 100.0);   
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(4, 0, -3, 0, 0, 0, 0, 1, 0);
+
+    //Enable this so OpenGL listens to PSIZE returned by CG
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_ARB);
+
+    glClientActiveTexture(GL_TEXTURE0);
+    glTexCoordPointer(4, GL_FLOAT, sizeof(Surfel), &pts[0].color);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glClientActiveTexture(GL_TEXTURE1);
+    glTexCoordPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].uvec);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glClientActiveTexture(GL_TEXTURE2);
+    glTexCoordPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].vvec);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].pos);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    cgGLEnableProfile(vertexProfile);
+    cgGLBindProgram(vertexProgram);
+    cgGLEnableProfile(fragmentProfile);
+    cgGLBindProgram(fragmentProgram);
+
+
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glBindTexture(GL_TEXTURE_2D, color_tex);
+    glDrawArrays(GL_POINTS, 0, numpoints);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 0.0); glVertex2f(-1.0 * aspect, -1.0);
+    glTexCoord2f(1.0, 0.0); glVertex2f(1.0 * aspect, -1.0);
+    glTexCoord2f(1.0, 1.0); glVertex2f(1.0 * aspect, 1.0);
+    glTexCoord2f(0.0, 1.0); glVertex2f(-1.0 * aspect, 1.0);
+    glEnd();
+    glDepthMask(GL_TRUE);
+}
+
+void display()
+{
+    prepare();
+    final();
+    glutSwapBuffers();
+}
+/*
 void display() 
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -145,31 +284,42 @@ void display()
     cgGLBindProgram(vertexProgram);
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(fragmentProgram);
-    cgGLBindProgram(normalizeProgram);
+    // cgGLBindProgram(normalizeProgram);
 
-    // Draw to FBO
+    // // Draw to FBO
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-    glDrawArrays(GL_POINTS, 0, numpoints);
+    //glDrawArrays(GL_POINTS, 0, numpoints);
 
-    // Visibility splatting pass
+    // // Visibility splatting pass
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
-    glDrawArrays(GL_POINTS, 0, numpoints);
     // Attach depth buffer to FBO
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
-
-    //Enable color writing and alpha blending
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_FALSE);
-    glEnable(GL_BLEND);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     glDrawArrays(GL_POINTS, 0, numpoints);
 
-
-    // Draw the texture to the screen
+    // //Enable color writing and alpha blending
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_FALSE);
+    cgGLBindProgram(normalizeProgram);
+    cgGLSetStateMatrixParameter(modelView, CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+
+
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     glClearColor(0, 0, 0, 1e-6);
-    // cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+    
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_tex, 0);
+    glDrawArrays(GL_POINTS, 0, numpoints);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+
+    // // Draw the texture to the screen
+    // glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    // // cgGLSetStateMatrixParameter(modelViewProj, CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
 
     cgGLSetTextureParameter(texture_input, color_tex);
     cgGLEnableTextureParameter(texture_input);
@@ -182,7 +332,7 @@ void display()
     glTexCoord2f(0.0, 1.0); glVertex2f(-1.0 * ratio, 1.0);
     glEnd();
 
-    //Disable after drawing
+    // //Disable after drawing
     glClientActiveTexture(GL_TEXTURE0);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glClientActiveTexture(GL_TEXTURE1);
@@ -196,6 +346,7 @@ void display()
     glDepthMask(GL_TRUE);
     glutSwapBuffers();
 }
+*/
 
 /* Choose profiles, set optimal options */
 void chooseCgProfiles()
@@ -263,24 +414,35 @@ void reshape(int width, int height)
 {
     w_width = width;
     w_height = height;
+
+    // Delete previous items. Initialize to zero so it does not do anything the first time
     glDeleteFramebuffersEXT(1, &fbo);
     glDeleteRenderbuffersEXT(1, &depthbuffer);
     glDeleteTextures(1, &color_tex);
+
+    //Generate color texture with 16 bit floating point values
     glGenTextures(1, &color_tex);
     glBindTexture(GL_TEXTURE_2D, color_tex);
     glTexImage2D(GL_TEXTURE_2D, 0,  GL_RGBA16F_ARB,  w_width, w_height, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    //Generate depth buffer render buffer
     glGenRenderbuffersEXT(1, &depthbuffer);
     glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthbuffer);
     glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,  GL_DEPTH_COMPONENT, w_width, w_height);
     glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+
+    //Generate the actual framebuffer and set color texture and depthbuffer renderbuffer
     glGenFramebuffersEXT(1, &fbo);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_tex, 0);
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER_EXT, depthbuffer);
+
+    //Make sure the FBO is fully defined and rebind the default renderbuffer
     assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT);
+    std::cout << "FBO complete" << std::endl;
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     glViewport(0, 0, w_width, w_height);
 }
