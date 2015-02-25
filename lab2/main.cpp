@@ -105,7 +105,10 @@ void display()
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(4, 0, -3, 0, 0, 0, 0, 1, 0);
+    // Changed gluLookAt in order to see the Quad Texture without an angle
+    // Original gluLookat:
+    // gluLookAt(4, 0, -3, 0, 0, 0, 0, 1, 0);
+    gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
 
     //Enable this so OpenGL listens to PSIZE returned by CG
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_ARB);
@@ -151,9 +154,9 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Visibility splatting pass
-    // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    // glDepthMask(GL_TRUE);
-    // glDrawArrays(GL_POINTS, 0, numpoints);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_TRUE);
+    glDrawArrays(GL_POINTS, 0, numpoints);
 
     //Enable color writing and alpha blending
     cgGLSetParameter1f(epsilon, 0);
@@ -165,6 +168,8 @@ void display()
 
     // Draw the texture to the screen
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+    // Bind normalize, unbind vertex shader
     cgGLBindProgram(normalizeProgram);
     cgGLUnbindProgram(vertexProfile);
     cgGLDisableProfile(vertexProfile);
