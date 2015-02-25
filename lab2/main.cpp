@@ -118,7 +118,7 @@ void display()
     cgGLSetParameter1f(near_f, near_val);
     cgGLSetParameter1f(top, top_val);
     cgGLSetParameter1f(bottom, bottom_val);
-    cgGLSetParameter1f(epsilon, 10e-4);
+    cgGLSetParameter1f(epsilon, -10e-3);
     cgGLSetParameter2f(unproj_scale, x_scale, y_scale);
     cgGLSetParameter2f(unproj_offset, x_offset, y_offset);
     cgGLSetParameter1f(zb_scale, zb_scale_val);
@@ -146,18 +146,17 @@ void display()
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(fragmentProgram);
 
-    // Draw to FBO
+    // bind to FBO and clear it
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Visibility splatting pass
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_TRUE);
-    glDrawArrays(GL_POINTS, 0, numpoints);
-    
-    // Attach depth buffer to FBO
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
+    // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    // glDepthMask(GL_TRUE);
+    // glDrawArrays(GL_POINTS, 0, numpoints);
 
     //Enable color writing and alpha blending
+    cgGLSetParameter1f(epsilon, 0);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
@@ -165,8 +164,10 @@ void display()
     glDrawArrays(GL_POINTS, 0, numpoints);
 
     // Draw the texture to the screen
-    cgGLBindProgram(normalizeProgram);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    cgGLBindProgram(normalizeProgram);
+    cgGLUnbindProgram(vertexProfile);
+    cgGLDisableProfile(vertexProfile);
     glClearColor(0, 0, 0, 1e-6);
 
     cgGLSetTextureParameter(texture_input, color_tex);
@@ -189,7 +190,6 @@ void display()
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 
-    cgGLDisableProfile(vertexProfile);
     cgGLDisableProfile(fragmentProfile);
     glDepthMask(GL_TRUE);
     glutSwapBuffers();
@@ -287,7 +287,6 @@ void reshape(int width, int height)
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_tex, 0);
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER_EXT, depthbuffer);
-
     //Make sure the FBO is fully defined and rebind the default renderbuffer
     assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
