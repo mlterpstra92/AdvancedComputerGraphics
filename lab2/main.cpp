@@ -148,14 +148,16 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // ---VISIBILITY SPLATTING PASS--- //
+    // Bind and load the vertex shader for the depth test
+    cgGLEnableProfile(vertexProfile);
+    cgGLBindProgram(vertexProgram);
+
     // Enable depth writing
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
     glDrawArrays(GL_POINTS, 0, numpoints);
 
-    // Bind and load the vertex and fragment shaders
-    cgGLEnableProfile(vertexProfile);
-    cgGLBindProgram(vertexProgram);
+    // Bind and load the fragment shaders
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(fragmentProgram);
 
