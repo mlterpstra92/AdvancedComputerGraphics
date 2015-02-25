@@ -143,22 +143,24 @@ void display()
     glVertexPointer(3, GL_FLOAT, sizeof(Surfel), &pts[0].pos);
     glEnableClientState(GL_VERTEX_ARRAY);
 
-    //Bind and load the shader
+    // bind to FBO and clear it
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // ---VISIBILITY SPLATTING PASS--- //
+    // Enable depth writing
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_TRUE);
+    glDrawArrays(GL_POINTS, 0, numpoints);
+
+    // Bind and load the vertex and fragment shaders
     cgGLEnableProfile(vertexProfile);
     cgGLBindProgram(vertexProgram);
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(fragmentProgram);
 
-    // bind to FBO and clear it
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Visibility splatting pass
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_TRUE);
-    glDrawArrays(GL_POINTS, 0, numpoints);
-
-    //Enable color writing and alpha blending
+    // ---BLENDING PASS--- //
+    // Enable color writing and alpha blending
     cgGLSetParameter1f(epsilon, 0);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_FALSE);
@@ -166,18 +168,22 @@ void display()
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     glDrawArrays(GL_POINTS, 0, numpoints);
 
-    // Draw the texture to the screen
+    // ---NORMALIZATION PASS--- //
+
+    // Start drawing to the screen
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-    // Bind normalize, unbind vertex shader
+    // Bind normalize shader, unbind vertex shader
     cgGLBindProgram(normalizeProgram);
     cgGLUnbindProgram(vertexProfile);
     cgGLDisableProfile(vertexProfile);
     glClearColor(0, 0, 0, 1e-6);
 
+    // Set texture
     cgGLSetTextureParameter(texture_input, color_tex);
     cgGLEnableTextureParameter(texture_input);
 
+    // Draw texture as quad
     float ratio = (float)w_width / w_height;
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0); glVertex2f(-1.0 * ratio, -1.0);

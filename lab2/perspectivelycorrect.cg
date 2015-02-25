@@ -26,5 +26,6 @@ void main(
 	float qz = qn.z * depthin/dn + epsilon;
 	// zb_scale/qz = lambda
 	depthout = zb_scale/qz + zb_offset;
-	colorout = float4(col.rgb, smoothstep(0, 1, 1 - sqrt(dist_sq)));
+	// colorout = float4(col.rgb, smoothstep(0, 1, 1 - sqrt(dist_sq)));
+	colorout = col;
 }
