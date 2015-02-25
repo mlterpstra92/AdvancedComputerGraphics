@@ -11,7 +11,7 @@ uvec and vvec represent the orientation and size of a splat.
 Question 3: On the slide, it is not shown how to compute peye. This
 is the position in of the point in eye (view)-space. What matrix should be
 used to transform a position from object-space to eye-space?
-Modelview matrix. 
+Modelview matrix. If the MVP matrix is used then the points end up in clip space
 
 Question 4: Does it matter whether we pass the surfel color to the
 vertex shader in a texture coordinate (glTexCoord...) or as the vertex color
@@ -36,5 +36,7 @@ No, as soon a fragment is discarded, the data is not processed through the remai
 
 
 Question 8: What is the difference between a texture and a render buffer?
+They both store pixel data but textures can be bound to shaders and rendered with but a renderbuffer can only be bound to an framebuffer object. However, because renderbuffer objects give hints about the data they store it can sometimes be stored more effective.
 
 Question 9: Why must depth write be disabled when blending the fragments?
+If depth writing is not disabled then the previous obtained depth information is overwritten in the blending pass. 

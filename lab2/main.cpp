@@ -148,16 +148,14 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // ---VISIBILITY SPLATTING PASS--- //
-    // Bind and load the vertex shader for the depth test
-    cgGLEnableProfile(vertexProfile);
-    cgGLBindProgram(vertexProgram);
-
     // Enable depth writing
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
     glDrawArrays(GL_POINTS, 0, numpoints);
 
-    // Bind and load the fragment shaders
+    // Bind and load the vertex and fragment shaders
+    cgGLEnableProfile(vertexProfile);
+    cgGLBindProgram(vertexProgram);
     cgGLEnableProfile(fragmentProfile);
     cgGLBindProgram(fragmentProgram);
 
@@ -216,10 +214,8 @@ void chooseCgProfiles()
     cgGLSetOptimalOptions(vertexProfile);
     fragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
     cgGLSetOptimalOptions(fragmentProfile);
-    printf("vertex profile:   %s\n",
-         cgGetProfileString(vertexProfile));
-    printf("fragment profile: %s\n",
-         cgGetProfileString(fragmentProfile));
+    printf("vertex profile:   %s\n", cgGetProfileString(vertexProfile));
+    printf("fragment profile: %s\n", cgGetProfileString(fragmentProfile));
 }
 
 /* Load Cg program from disk */
@@ -229,8 +225,7 @@ CGprogram loadCgProgram(CGprofile profile, const char *filename)
     assert(cgIsContext(context));
 
     fprintf(stderr, "Cg program %s creating.\n", filename);
-    program = cgCreateProgramFromFile(context, CG_SOURCE,
-            filename, profile, NULL, NULL);
+    program = cgCreateProgramFromFile(context, CG_SOURCE, filename, profile, NULL, NULL);
     
     if(!cgIsProgramCompiled(program)) {
         printf("%s\n",cgGetLastListing(context));
