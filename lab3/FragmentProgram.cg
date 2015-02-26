@@ -16,7 +16,8 @@ void main(
   uniform float epsilon,
   
   out float depthout : DEPTH,
-  out float4 colorout : COLOR0)
+  out float4 colorout : COLOR0,
+  out float3 normal : COLOR1)
 {  
   float3 qn = float3(wpos*unproj_scale - unproj_offset, -near);
   float dn = dot(qn, uCrossV);
@@ -32,8 +33,10 @@ void main(
   float dist = sqrt(dist_sq);
   float weight = smoothstep(1.0, 0.0, dist);
   
-  colorout = float4(color.rgb, weight);
+  colorout = float4(color.rgb * weight, weight);
   
   float qz = qn.z * depthin/dn + epsilon;
   depthout = zb_scale/qz + zb_offset;
+
+  normal = uCrossV;
 }

@@ -170,7 +170,8 @@ void display()
     glColorMask(GL_TRUE,GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glBlendFunc(GL_ONE, GL_ONE);
+    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     glDrawArrays(GL_POINTS, 0, numpoints);
     glDepthMask(GL_TRUE);
     
