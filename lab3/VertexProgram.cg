@@ -31,7 +31,12 @@ void main(float4 pvec : POSITION,
   pCrossMinV = cross(peye.xyz, -veye);
   minUCrossP = cross(-ueye, peye.xyz);
   uCrossV = cross(ueye, veye);
-  
+  float angle = dot(peye, uCrossV);
+  // Backface culling
+  if (angle >= 0)
+  {
+    pout.w = -1;
+  }
   cout = color;  
   depthin = dot(peye, uCrossV);
 }

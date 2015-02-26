@@ -7,6 +7,8 @@ Material color.
 2. Instead of doing backface culling we can also set the \texttt{epsilon}
 parameter to a very small value to ignore the back-facing layers. Why is
 this not a good solution?
+If there is a point within epsilon distance behind a point which is not fully opaque, the 2nd point will not be rendered. 
+This removes points that should be visible.  
 
 3. Instead of storing explicit normals as attribute, the normal 
 could also be calculated  from the depth attribute by taking 
