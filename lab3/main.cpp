@@ -20,7 +20,7 @@ CGprogram normalizeFP = NULL;
 
 GLuint fbo = 0;
 GLuint depthbuffer = 0;
-GLuint color_tex;
+GLuint textureHandles[2];
 
 int w_width=512, w_height=512;
 
@@ -152,6 +152,9 @@ void display()
     glEnableClientState(GL_VERTEX_ARRAY);
     
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+
+    GLenum bufs[2] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT};
+    glDrawBuffers(2, bufs);
     
     glClearColor(0, 0, 0, 1e-6);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -188,7 +191,7 @@ void display()
     cgGLDisableProfile(vertexProfile);
     cgGLBindProgram(normalizeFP);
 
-    cgGLSetTextureParameter(cgGetNamedParameter(normalizeFP,"input"), color_tex);
+    cgGLSetTextureParameter(cgGetNamedParameter(normalizeFP,"input"), textureHandles[0]);
     cgGLEnableTextureParameter(cgGetNamedParameter(normalizeFP,"input"));
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -274,13 +277,19 @@ void reshape(int width, int height)
     
     glDeleteFramebuffersEXT(1, &fbo);
     glDeleteRenderbuffers(1, &depthbuffer);
-    glDeleteTextures(1, &color_tex);
+    glDeleteTextures(2, textureHandles);
     
-    glGenTextures(1, &color_tex);
-    glBindTexture(GL_TEXTURE_2D, color_tex);
+    glGenTextures(2, textureHandles);
+    glBindTexture(GL_TEXTURE_2D, textureHandles[0]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, w_width, w_height, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // Create second texture
+    glBindTexture(GL_TEXTURE_2D, textureHandles[1]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, w_width, w_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    
     glBindTexture(GL_TEXTURE_2D, 0);
     
     glGenRenderbuffersEXT(1, &depthbuffer);
@@ -290,7 +299,9 @@ void reshape(int width, int height)
     
     glGenFramebuffersEXT(1, &fbo);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_tex, 0);
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureHandles[0], 0);
+    // Bind second texture to FBO
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, textureHandles[1], 0);
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER_EXT, depthbuffer);
 
     assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT);
