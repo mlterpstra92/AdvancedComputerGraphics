@@ -6,7 +6,7 @@ So, using Vertex arrays is faster than using immediate mode rendering.
 
 Question 2: What are uvec and vvec in the Surfel structure? What properties of 
 the splat do they represent?
-uvec and vvec represent the orientation and size of a splat. 
+uvec and vvec are the vectors that determine the orientation and size of a splat. 
 
 Question 3: On the slide, it is not shown how to compute peye. This
 is the position in of the point in eye (view)-space. What matrix should be
@@ -21,7 +21,7 @@ With textCoord, openGL does not know this. So OpenGL has to be told which variab
 
 Question 5: What matrix should you use to transform the u and v vectors? Is
 it different from the matrix you would use to transform a normal? Why (not)?
-TODO:Modelview, but why?
+The ModelView matrix is used to transform the u and v vectors while to transform normals the inverse-transpose of the ModelView matrix is used.  This is due to that when an object is transformed, the normals should change orientation because the shape of the object changes. However, the u and v vectors are bound to the point and thus should stay in place. That is why a different matrix must be used.
 
 Question 6: Why would we want to move as much computations as
 possible from the fragment program to the vertex program, or even from the
@@ -33,7 +33,6 @@ The application performs computations on every frame, or only once.
 Question 7: Does it matter which values the outputs have when a
 fragment is discarded?
 No, as soon a fragment is discarded, the data is not processed through the remaining part of the pipeline.
-
 
 Question 8: What is the difference between a texture and a render buffer?
 They both store pixel data but textures can be bound to shaders and rendered with but a renderbuffer can only be bound to an framebuffer object. However, because renderbuffer objects give hints about the data they store it can sometimes be stored more effective.
