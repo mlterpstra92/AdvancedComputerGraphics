@@ -38,5 +38,5 @@ void main(
   float qz = qn.z * depthin/dn + epsilon;
   depthout = zb_scale/qz + zb_offset;
 
-  normal = uCrossV;
+  normal = -uCrossV;
 }

@@ -35,6 +35,10 @@ struct Surfel
 int numpoints;
 Surfel *pts;
 
+GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+GLfloat mat_shininess[] = { 50.0 };
+GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+
 void read_points(const char *fname)
 {
     FILE *f = fopen(fname, "rb");
@@ -160,7 +164,7 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Visibility pass
-    cgSetParameter1f(getNamedParameter(fragmentProgram, "epsilon"), -0.01f);
+    cgSetParameter1f(getNamedParameter(fragmentProgram, "epsilon"), -0.1f);
     glColorMask(GL_FALSE,GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
     glDrawArrays(GL_POINTS, 0, numpoints);
