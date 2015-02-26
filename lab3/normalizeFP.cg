@@ -1,0 +1,9 @@
+void main(
+    int2 wpos : WPOS,
+    uniform sampler2D input,
+    out float4 colorout : COLOR
+    )
+{
+    float4 acc = tex2Dfetch(input, int4(wpos,0,0));
+    colorout = float4(acc.rgb / acc.a, 1.0);
+}

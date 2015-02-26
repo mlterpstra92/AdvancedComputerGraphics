@@ -1,0 +1,37 @@
+void main(float4 pvec : POSITION,
+  float4 color : TEXCOORD0,
+  float3 uvec : TEXCOORD1,
+  float3 vvec : TEXCOORD2,
+  
+  uniform float4x4 modelView,
+  uniform float4x4 modelViewProj,
+  uniform float2 wsize,
+  uniform float near,
+  uniform float top,
+  uniform float bottom,
+  
+  out float4 pout : POSITION,
+  out float psize : PSIZE,
+  out float4 cout : TEXCOORD0,
+  out float3 pCrossMinV : TEXCOORD1,
+  out float3 minUCrossP : TEXCOORD2,
+  out float3 uCrossV : TEXCOORD3,
+  out float depthin : TEXCOORD4
+)
+{
+  float4 peye = mul(modelView, pvec);
+  pout = mul(modelViewProj, pvec);
+
+  float radius = sqrt(max(dot(uvec, uvec), dot(vvec, vvec)));  
+  psize = 2.0 * radius * (-near / peye.z) * (wsize.y / (top - bottom));
+  
+  float3 ueye = mul(modelView, float4(uvec, 0)).xyz;
+  float3 veye = mul(modelView, float4(vvec, 0)).xyz;
+  
+  pCrossMinV = cross(peye.xyz, -veye);
+  minUCrossP = cross(-ueye, peye.xyz);
+  uCrossV = cross(ueye, veye);
+  
+  cout = color;  
+  depthin = dot(peye, uCrossV);
+}
