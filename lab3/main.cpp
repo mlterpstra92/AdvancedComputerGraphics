@@ -35,9 +35,8 @@ struct Surfel
 int numpoints;
 Surfel *pts;
 
-GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_shininess[] = { 50.0 };
-GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+GLfloat mat_shininess = 50.0;
+GLfloat light_position[] = { 4.0, -10.0, -1.0, 0.0 };
 
 void read_points(const char *fname)
 {
@@ -137,6 +136,11 @@ void display()
     cgSetParameter1f(getNamedParameter(fragmentProgram, "near"), znear);
     cgSetParameter1f(getNamedParameter(fragmentProgram, "zb_scale"), (zfar*znear)/(zfar-znear));
     cgSetParameter1f(getNamedParameter(fragmentProgram, "zb_offset"), zfar/(zfar-znear));
+    cgSetParameter4f(getNamedParameter(normalizeFP, "light_pos"), light_position[0], light_position[1], light_position[2], light_position[3]);
+    cgSetParameter1f(getNamedParameter(normalizeFP, "shininess"), mat_shininess);
+    cgSetParameter2f(getNamedParameter(normalizeFP, "unproj_scale"), float(right - left) / float(w_width), float(top - bottom) / float(w_height));
+    cgSetParameter2f(getNamedParameter(normalizeFP, "unproj_offset"), float(right - left) / 2.0f, float(top - bottom) / 2.0f);
+    cgSetParameter1f(getNamedParameter(normalizeFP, "near"), znear);
         
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     
@@ -196,9 +200,12 @@ void display()
     cgGLDisableProfile(vertexProfile);
     cgGLBindProgram(normalizeFP);
 
-    cgGLSetTextureParameter(cgGetNamedParameter(normalizeFP,"input"), textureHandles[0]);
-    cgGLEnableTextureParameter(cgGetNamedParameter(normalizeFP,"input"));
+    cgGLSetTextureParameter(cgGetNamedParameter(normalizeFP,"intermediate_color"), textureHandles[0]);
+    cgGLEnableTextureParameter(cgGetNamedParameter(normalizeFP,"intermediate_color"));
     
+    cgGLSetTextureParameter(cgGetNamedParameter(normalizeFP,"intermediate_normal"), textureHandles[1]);
+    cgGLEnableTextureParameter(cgGetNamedParameter(normalizeFP,"intermediate_normal"));
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     
@@ -324,7 +331,7 @@ int main(int argc, char *argv[])
     glutCreateWindow("Point based rendering in Cg");
     
     glewInit();
-    
+
     glutKeyboardFunc(keyboard);
     glutDisplayFunc(display);
     glutIdleFunc(idle);

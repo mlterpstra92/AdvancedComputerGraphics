@@ -1,9 +1,34 @@
 void main(
-    int2 wpos : WPOS,
-    uniform sampler2D input,
+    int2 wpos 		: WPOS,
+    float depthin   : TEXCOORD4,
+
+    uniform sampler2D intermediate_color,
+    uniform sampler2D intermediate_normal,
+    uniform float4 light_pos,
+	uniform float shininess,
+    
+	uniform float near,
+	uniform float2 unproj_scale,
+	uniform float2 unproj_offset,
+
     out float4 colorout : COLOR
     )
 {
-    float4 acc = tex2Dfetch(input, int4(wpos,0,0));
-    colorout = float4(acc.rgb / acc.a, 1.0);
+    float4 cur_col = tex2Dfetch(intermediate_color, int4(wpos,0,0));
+    float4 normalized_col = float4(cur_col.rgb / cur_col.a, 1.0);
+
+    float4 cur_norm = tex2Dfetch(intermediate_normal, int4(wpos,0,0));
+    float4 normalized_norm = normalize(cur_norm);
+
+	float3 qn = float3(wpos*unproj_scale - unproj_offset, -near);
+	// -cur_norm equals uCrossV
+	float dn = dot(qn, -cur_norm);
+	float3 q = qn.xyz * depthin/dn;
+	float3 viewdir = -q;
+
+    float diffuse = max(dot(normalized_norm.xyz, light_pos.xyz), 0.0);
+	float3 halfvec = normalize(light_pos.xyz + viewdir);
+	float specular = pow(max(dot(normalized_norm.xyz, halfvec), 0.0), shininess);
+	float3 rgb = diffuse * normalized_col.rgb + specular;
+	colorout = float4(rgb.xyz, 1.0);
 }
