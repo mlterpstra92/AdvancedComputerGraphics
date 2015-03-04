@@ -1,8 +1,9 @@
 1. What attributes do we absolutely need for diffuse and specular per-pixel
 Phong shading, in addition to the accumulated Gaussian kernel weight (1
 float)?
-The (interpolated) normal.
-Material color.
+The (interpolated) normal. (3 floats)
+Material color. (3 floats)
+Lambda (to calculate the point on the surface, q = qn * lambda) (1 float)
 
 2. Instead of doing backface culling we can also set the \texttt{epsilon}
 parameter to a very small value to ignore the back-facing layers. Why is
@@ -13,4 +14,5 @@ When using backface culling, only vertices are checked.
 3. Instead of storing explicit normals as attribute, the normal 
 could also be calculated  from the depth attribute by taking 
 directional derivatives. Name one advantage and a disadvantage of doing this.
-
+Advantage: It takes less storage since you don't have to store normals (3 floats)
+Disadvantage: It is computationally expensive and it probably causes small errors.

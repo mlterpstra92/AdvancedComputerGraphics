@@ -36,7 +36,7 @@ int numpoints;
 Surfel *pts;
 
 GLfloat mat_shininess = 50.0;
-GLfloat light_position[] = { 4.0, -10.0, -1.0, 0.0 };
+GLfloat light_position[] = { 2,2,0, 0.0 };
 
 void read_points(const char *fname)
 {
