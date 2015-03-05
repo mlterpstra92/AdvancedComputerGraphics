@@ -18,14 +18,13 @@
 			% https://www.youtube.com/watch?v=PCS7EgAftRQ
 			\includegraphics[width=0.8\textwidth]{sph.jpg}
 		\end{figure}
-		Screen space fluid rendering is performed using Smoothed Particle Hydrodynamics (SPH) 
 	\end{frame}
 	\begin{frame}[t]\frametitle{Curvature flow}
 		\begin{figure}
 			% http://www.tobiaskohn.ch/pictures/MCF_2.jpg
-			\includegraphics[width=0.8\textwidth]{curvature.jpg}
+			\centering
+			\includegraphics[width=0.9\textwidth]{curvatureflow.jpg}
 		\end{figure}
-		Curvature flow is BLA
 	\end{frame}
 	\begin{frame}[t]\frametitle{Who, where and when?}
 	    \begin{itemize}
@@ -36,13 +35,25 @@
 	    \end{itemize}
 	\end{frame}
 	\begin{frame}[t]\frametitle{Why?}
-		\begin{itemize}
-			\item Games
-			\item No
-		\end{itemize}
+		\begin{figure}
+			\centering
+			% http://international.download.nvidia.com/geforce-com/international/guides/call-of-duty-ghosts-gp-guide/water%20map%20res/low.png
+			\includegraphics[width=0.8\textwidth]{cod.png}
+		\end{figure}
 	\end{frame}
 	\begin{frame}[t]\frametitle{Related work}
-			
+		\begin{itemize}
+
+			\item Marching cubes %Isosurface extraction, works only in real-time with small amount of particles and is quite blobby
+			\item Ray metaballs  %Implicit ray metaball algorithm. Also works without a grid but has very thick surface to reduce bumpyness
+			\begin{center}
+				\begin{figure}
+					% http://international.download.nvidia.com/geforce-com/international/guides/call-of-duty-ghosts-gp-guide/water%20map%20res/low.png
+					\includegraphics[width=0.4\textwidth]{marching_cubes.png}\hspace{1em}
+					\includegraphics[width=0.4\textwidth]{metaball.png}
+				\end{figure}
+			\end{center}
+		\end{itemize}
 	\end{frame}
 	\begin{frame}[t]\frametitle{Overview of method}
 	    \begin{enumerate}
@@ -52,6 +63,10 @@
 	    	\item Dynamic noise texture is generated on the surface of the fluid
 	    	\item Smoothed surface depth, noise texture and an image of the scene behind the fluid is combined into the final rendering fluid 
 	    \end{enumerate}	
+	    \begin{figure}
+	    	\centering
+	    	\includegraphics[width=0.4\textwidth]{waterval.png}
+	    \end{figure}
 	\end{frame}
 	\begin{frame}[t]\frametitle{Surface depth}
 		\begin{itemize}
@@ -74,13 +89,19 @@
 	    	% Bilateral filters preserve edges, but are inefficient
 	    	\item Curvature flow
 	    \end{itemize}
+	    \begin{figure}
+	    	\centering
+	    	% http://international.download.nvidia.com/geforce-com/international/guides/call-of-duty-ghosts-gp-guide/water%20map%20res/low.png
+	    	\includegraphics[width=0.4\textwidth]{gaussian.png} \hspace{1em}
+	    	\includegraphics[width=0.4\textwidth]{curvature_water.png}
+	    \end{figure}
 	\end{frame}
 	\begin{frame}[t]\frametitle{Curvature flow}
 		\begin{itemize}
 			\item Minimize curvature
 			% This corresponds with nature, where surface tension create water drops and puddles.
-			\item Transform the surface along its normal direction 
-			\item \textbf{Screen-space}: transform the surface along the $z$ direction 
+			% \item Transform the surface along its normal direction 
+			\item Transform the surface along the $z$ direction 
 			% Normally, the surface is transformed along the normal direction of the surface,
 			% but since we are working in the depth buffer, this is the z direction
 			\item Amount of transformation depends on the magnitude of the mean curvature
@@ -92,8 +113,14 @@
 		\begin{equation}
 			H = \frac{\nabla \cdot \hat{n}}{2}
 		\end{equation}
+		\vspace{-2em}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.5\textwidth]{curvatureflow.jpg}
+		\end{figure}
 		% Mean curvature is defined as the divergence of the unit normal of a surface
 	\end{frame}
+	
 	\begin{frame}[t]\frametitle{Thickness}
 	    \begin{itemize}
 	    	\item Objects become less visible if water is in front of it
@@ -106,23 +133,58 @@
 	\end{frame}
 	\begin{frame}[t]\frametitle{Noise}
 	    \begin{itemize}
-	    	\item Smooth surfaces are unrealistic
-	    	\item Add noise to surface to add detail
+	    	% \item Smooth surfaces are unrealistic
+	    	% \item Add noise to surface to add detail
 	    	\item Assign Perlin noise to each particle
-	    	\item Make them contribute less as they submerge
+	    	\item Make noise contribute less as particles submerge
 	    \end{itemize}
+	    \begin{figure}
+			\centering
+			\includegraphics[width=0.5\textwidth]{noise_water.png}
+		\end{figure}
 	\end{frame}
-	\begin{frame}[t]\frametitle{Results}
+	\begin{frame}[t]\frametitle{Foam}
+	    \begin{figure}
+			\centering
+			\includegraphics[width=0.8\textwidth]{foam.png}
+		\end{figure}
+	
+	\end{frame}
+	\begin{frame}[t]\frametitle{Rendering}
 	    \begin{itemize}
-	    	\item 64000 particles
-	    	\item 2-3 times slower than Gaussian smoothing
-	    	\item Much better results
+	    	\item Per frame multiple smooth steps performed.
+	    	\item Rendered using Phong and Fresnel equations
+	    \end{itemize}
+	    \begin{figure}
+			% http://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Fresnel1.svg/300px-Fresnel1.svg.png
+			\centering
+			\includegraphics[width=0.6\textwidth]{Fresnel.eps}
+		\end{figure}
+	
+	\end{frame}
+	\begin{frame}[t]\frametitle{Results}
+		\begin{figure}
+			\centering
+		    \includegraphics[width=.8\textwidth]{gaussian.png}
+		\end{figure}
+	\end{frame}
+	\begin{frame}[t]\frametitle{Results}
+		\begin{figure}
+			\centering
+		    \includegraphics[width=.8\textwidth]{curveFlow.png}
+		\end{figure}
+	\end{frame}
+	\begin{frame}[t]\frametitle{Future work}
+	    \begin{itemize}
+	    	\item CUDA
+	    	\item Better thickness measure
 	    \end{itemize}
 	\end{frame}
-	\begin{frame}[t]\frametitle{Results}
-	    \includegraphics[scale=.5]{gaussian.png}
-	\end{frame}
-	\begin{frame}[t]\frametitle{Results}
-	    \includegraphics[scale=.5]{curveFlow.png}
+	\begin{frame}[t]\frametitle{References}
+	    \begin{itemize}
+	    	\item van der Laan, Wladimir J., Simon Green, and Miguel Sainz. ``Screen space fluid rendering with curvature flow.'' Proceedings of the 2009 symposium on Interactive 3D graphics and games. ACM, 2009.
+	    	\item Zhang, Yanci, Barbara Solenthaler, and Renato Pajarola. ``Adaptive sampling and rendering of fluids on the GPU.'' Proceedings of the Fifth Eurographics/IEEE VGTC conference on Point-Based Graphics. Eurographics Association, 2008.
+	    	\item Williams, Brent Warren. Fluid surface reconstruction from particles. Diss. The University Of British Columbia, 2008.
+	    \end{itemize}
 	\end{frame}
 \end{document}
