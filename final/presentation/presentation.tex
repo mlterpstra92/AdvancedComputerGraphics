@@ -87,6 +87,34 @@
 		% Mean curvature is defined as the divergence of the unit normal of a surface
 	\end{frame}
 	\begin{frame}[t]\frametitle{Thickness}
-	    
+	    \begin{itemize}
+	    	\item Objects become less visible if water is in front of it
+	    	\item Attenuate colour of object based on "thickness"
+	    	\begin{equation}
+	    		T(x, y) = \sum_{i = 0}^{n} d(\frac{x - x_i}{\sigma_i}, \frac{y - y_i}{\sigma_i})
+	    	\end{equation}
+	    	\item Additive blending based on this measure
+	    \end{itemize}
+	\end{frame}
+	\begin{frame}[t]\frametitle{Noise}
+	    \begin{itemize}
+	    	\item Smooth surfaces are unrealistic
+	    	\item Add noise to surface to add detail
+	    	\item Assign Perlin noise to each particle
+	    	\item Make them contribute less as they submerge
+	    \end{itemize}
+	\end{frame}
+	\begin{frame}[t]\frametitle{Results}
+	    \begin{itemize}
+	    	\item 64000 particles
+	    	\item 2-3 times slower than Gaussian smoothing
+	    	\item Much better results
+	    \end{itemize}
+	\end{frame}
+	\begin{frame}[t]\frametitle{Results}
+	    \includegraphics[scale=.5]{gaussian.png}
+	\end{frame}
+	\begin{frame}[t]\frametitle{Results}
+	    \includegraphics[scale=.5]{curveFlow.png}
 	\end{frame}
 \end{document}
