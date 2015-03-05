@@ -1,0 +1,21 @@
+Question 1: In which case, magnification or minification, will the
+screen-space filter make the splat bigger?
+
+Question 2: Will it ever make the splat smaller?
+
+Question 3: A vertex shader always outputs the homogeneous vertex
+coordinates in clip-space in the \texttt{POSITION} binding semantic. Which
+two steps are needed to get to the window coordinates from there?
+
+Question 4: Why is taking the minimum of the two squared distances
+before applying the Gaussian equivalent to taking the maximum of the
+resulting kernel function values? (Given that the standard deviation is the
+same in both cases)
+
+Question 5: For very large sizes of the screen-space filter,
+around 22, black areas start to appear around splats that are most
+perpendicular to the viewing plane. The same happens if we try to
+anti-alias, for example, the lion. This is due to the depth extrapolation,
+which becomes invalid outside of the object-space splats, and thus starts to
+obscure things that should not be when the screen-space filter makes the
+splats bigger. How could this be resolved?

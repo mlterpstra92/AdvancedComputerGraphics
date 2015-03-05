@@ -1,0 +1,44 @@
+float3 lightPos = float3(2.0, 2.0, 0.0);
+const float shininess = 100.0;
+
+void main(
+    int2 wpos : WPOS,
+    
+    uniform float near,
+    uniform float2 unproj_scale,
+    uniform float2 unproj_offset,
+  
+    uniform sampler2D colorin,
+    uniform sampler2D normalin,
+    out float4 colorout : COLOR
+    )
+{
+    // Extract the parameters we passed in the render targets
+    float4 color = tex2Dfetch(colorin, int4(wpos,0,0));
+    float3 normalizedColor = color.rgb / color.a;
+    
+    float4 normalAndLambda = tex2Dfetch(normalin, int4(wpos,0,0));
+    float3 normal = normalize(normalAndLambda.xyz);
+    float lambda = normalAndLambda.a / color.a;
+
+    // Compute the eye-space position of the surface.
+    float3 qn = float3(wpos*unproj_scale - unproj_offset, -near);
+    float3 pos = qn * lambda;
+    
+    // Light vecor point from the surface to the light
+    float3 lightdir = normalize(lightPos - pos);
+    
+    // View dir point from the surface to the eye.
+    // We're working in eye-space, so the eye is at the origin.
+    float3 viewdir = normalize(-pos);
+    
+    // Compute lighting components.
+    float diffuse = max(dot(normal, lightdir), 0.0);
+    float3 halfvec = normalize(lightdir + viewdir);
+    float specular = pow(max(dot(normalize(normalAndLambda.xyz), halfvec), 0.0), shininess);
+    
+    colorout = float4(diffuse * normalizedColor + specular, 1.0);
+}
+
+
+
