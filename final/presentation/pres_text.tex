@@ -1,0 +1,54 @@
+\documentclass{article}
+
+
+\begin{document}
+\section{Bram: Title}
+
+We are ... .... 
+\section{Bram: Screen space fluid rendering}
+Fluid is simulated using smoothed particle hydrodynamics, also called SPH.
+This means that fluid is divided into a set of discrete elements.
+SPH do not need a grid, this means that in theory there are no boundaries.
+SPH is a lot faster than a traditional grid based techniques, a lot of physical concepts are much easier determined using SPH than using the traditional approach. 
+An SPH simulation can be seen in this figure.
+
+\section{Maarten:Curvature Flow}
+Curvature describes the amount of smoothness of a surface.
+Mean curvature flow can thus be used to smoothen a surface.
+An example of mean curvature can be seen in this figure.
+
+\section{...:Who, where and when?}
+Method by ..., done at the RUG in collaboration with NVIDIA. 
+It was developed in ....
+
+\section{...:Why?}
+It is a high quality simulation of fluid, which is used in games.
+The main reason that this method was developed is that existing methods had several artifacts or computational issues.
+
+\section{...:Related work}
+An isosurface is created using marching cubes.
+The disadvantages of using marching cubes are:
+Works only in real-time with small amount of particles and is quite blobby.
+A grid like structure is needed to perform marching cubes.
+
+
+Metaball is a shape that is created using unions of spheres.
+It is a implicit ray metaball algorithm.
+Advantage of using metaballs is that it works without a grid like structure.
+The disadvantages of using ray metaballs are:
+Needs very big metaballs in order to decrease bumpyness.
+
+\section{...:Overview of method}
+A general overview of our method looks like this:
+The input consists of positions of n particles which can be in any order.
+...
+...
+A detailed explanation of each step is given in the upcoming slides.
+
+\section{...:Surface depth}
+We are interested in the surface, so we determine all the points that are closest to the viewpoint of the camera/
+
+Refer to practical where normals and colors are splatted.
+The reason for this is that the depth values will be manipulated by the smoothing step.
+This means that the normals will also change in the smoothing step.
+\end{document}
