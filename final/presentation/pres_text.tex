@@ -12,20 +12,20 @@ SPH do not need a grid, this means that in theory there are no boundaries.
 SPH is a lot faster than a traditional grid based techniques, a lot of physical concepts are much easier determined using SPH than using the traditional approach. 
 An SPH simulation can be seen in this figure.
 
-\section{Maarten:Curvature Flow}
+\section{Bram:Curvature Flow}
 Curvature describes the amount of smoothness of a surface.
 Mean curvature flow can thus be used to smoothen a surface.
 An example of mean curvature can be seen in this figure.
 
-\section{...:Who, where and when?}
+\section{Maarten:Who, where and when?}
 Method by ..., done at the RUG in collaboration with NVIDIA. 
 It was developed in ....
 
-\section{...:Why?}
+\section{Maarten:Why?}
 It is a high quality simulation of fluid, which is used in games.
 The main reason that this method was developed is that existing methods had several artifacts or computational issues.
 
-\section{...:Related work}
+\section{Maarten:Related work}
 An isosurface is created using marching cubes.
 The disadvantages of using marching cubes are:
 Works only in real-time with small amount of particles and is quite blobby.
@@ -38,14 +38,14 @@ Advantage of using metaballs is that it works without a grid like structure.
 The disadvantages of using ray metaballs are:
 Needs very big metaballs in order to decrease bumpyness.
 
-\section{...:Overview of method}
+\section{Bram:Overview of method}
 A general overview of our method looks like this:
 The input consists of positions of n particles which can be in any order.
 ...
 ...
 A detailed explanation of each step is given in the upcoming slides.
 
-\section{...:Surface depth}
+\section{Bram:Surface depth}
 We are interested in the surface, so we determine all the points that are closest to the viewpoint of the camera/
 
 Refer to practical where normals and colors are splatted.
@@ -53,7 +53,7 @@ particles are not explicitly splatted.
 The reason for this is that the depth values will be manipulated by the smoothing step.
 This means that the normals will also change in the smoothing step.
 
-\section{...:Surface depth smoothing} % (fold)
+\section{Maarten:Surface depth smoothing} % (fold)
 \label{sec:_surface_depth_smoothing}
 In order to prevent a jelly-like appearance, surface smoothing is desired.
 Whenever we computing scientists hear the word smoothing, our minds immediately go to Gaussian filters.
@@ -62,7 +62,7 @@ Bilateral Gaussian kernels which preserve edges are also problematic because the
 So we want to use curvature flow.
 % section _surface_depth_smoothing (end)
 
-\section{...:Curvature flow} % (fold)
+\section{Maarten:Curvature flow} % (fold)
 \label{sec:_curvature_flow}
 Smooth surfaces have no sudden changes in curvature between particles. 
 So we want to minimize the mean curvature flow in a surface.
@@ -72,7 +72,7 @@ In the simulation, there is no surface tension so another way to decrease curvat
 Curvature can be minimized by transforming points along its normal direction based on how curvy the surface is at that point. By transforming the points curvature is then reduces. But because are working in the depth buffer, points are transformed along the z-direction instead.
 % section _curvature_flow (end)
 
-\section{...:Thickness} % (fold)
+\section{Bram:Thickness} % (fold)
 \label{sec:_thickness}
 This is very similar to what happens in nature. 
 The deeper an opaque object is submerged in the water, the bluer/blacker is looks and visibility of the object will decrease.
@@ -80,15 +80,24 @@ This effect is necessary for a realistic simulation of a body of water, which tr
 The thickness determines how much water is in front the nearest opaque object for each pixel. Based on the thickness the color as attenuated by additive blending.
 % section _thickness (end)
 
-\section{...:Noise} % (fold)
+\section{Bram:Noise} % (fold)
 \label{sec:noise}
 Perfectly smooth surfaces are unrealistic and rarely seen in nature. To accomplish this in the simulation, a noise texture is created and a noise value is attached to each particle. This ensures advection of the noise throughout the simulation.
 
 Special measures must be taken when a particle is submerged. The strength of noise has an inverse exponential relation based on the depth of the particle below the surface.
 % section noise (end)
 
-\section{Foam} % (fold)
+\section{Bram:Foam} % (fold)
 \label{sec:foam}
 Based on the amount of noise attached to a particle, a grey colour can be added to a particle to simulate a foam-like effect.
 % section foam (end)
+
+\section{Maarten:Rendering} % (fold)
+\label{sec:rendering}
+The amount of the smoothing can be modified by changing the amount of smoothing iterations.
+The more iterations are done, the smoother a surface be. A smoother surface often desired, but this comes at the cost of more computation time per frame.
+
+The specular highlights on the fluids is rendered using Phong shading. 
+The water color is computed using the Fresnel equations, which determines the refraction and reflection components of a ray of light hitting the water.
+% section rendering (end)
 \end{document}
