@@ -49,6 +49,46 @@ A detailed explanation of each step is given in the upcoming slides.
 We are interested in the surface, so we determine all the points that are closest to the viewpoint of the camera/
 
 Refer to practical where normals and colors are splatted.
+particles are not explicitly splatted.
 The reason for this is that the depth values will be manipulated by the smoothing step.
 This means that the normals will also change in the smoothing step.
+
+\section{...:Surface depth smoothing} % (fold)
+\label{sec:_surface_depth_smoothing}
+In order to prevent a jelly-like appearance, surface smoothing is desired.
+Whenever we computing scientists hear the word smoothing, our minds immediately go to Gaussian filters.
+However, straightforward Gaussian kernels will also blur silhouette edges and can create plateaus of equal depth, which are unrealistic.
+Bilateral Gaussian kernels which preserve edges are also problematic because they are inefficient.
+So we want to use curvature flow.
+% section _surface_depth_smoothing (end)
+
+\section{...:Curvature flow} % (fold)
+\label{sec:_curvature_flow}
+Smooth surfaces have no sudden changes in curvature between particles. 
+So we want to minimize the mean curvature flow in a surface.
+This corresponds to natural phenomena where surface tension creates water drops and puddles, where curvature is minimized.
+
+In the simulation, there is no surface tension so another way to decrease curvature must be devised.
+Curvature can be minimized by transforming points along its normal direction based on how curvy the surface is at that point. By transforming the points curvature is then reduces. But because are working in the depth buffer, points are transformed along the z-direction instead.
+% section _curvature_flow (end)
+
+\section{...:Thickness} % (fold)
+\label{sec:_thickness}
+This is very similar to what happens in nature. 
+The deeper an opaque object is submerged in the water, the bluer/blacker is looks and visibility of the object will decrease.
+This effect is necessary for a realistic simulation of a body of water, which translates in the simulation to the thickness measure.
+The thickness determines how much water is in front the nearest opaque object for each pixel. Based on the thickness the color as attenuated by additive blending.
+% section _thickness (end)
+
+\section{...:Noise} % (fold)
+\label{sec:noise}
+Perfectly smooth surfaces are unrealistic and rarely seen in nature. To accomplish this in the simulation, a noise texture is created and a noise value is attached to each particle. This ensures advection of the noise throughout the simulation.
+
+Special measures must be taken when a particle is submerged. The strength of noise has an inverse exponential relation based on the depth of the particle below the surface.
+% section noise (end)
+
+\section{Foam} % (fold)
+\label{sec:foam}
+Based on the amount of noise attached to a particle, a grey colour can be added to a particle to simulate a foam-like effect.
+% section foam (end)
 \end{document}

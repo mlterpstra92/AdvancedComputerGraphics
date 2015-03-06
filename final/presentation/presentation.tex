@@ -125,10 +125,10 @@
 	    \begin{itemize}
 	    	\item Objects become less visible if water is in front of it
 	    	\item Attenuate colour of object based on "thickness"
-	    	\begin{equation}
-	    		T(x, y) = \sum_{i = 0}^{n} d(\frac{x - x_i}{\sigma_i}, \frac{y - y_i}{\sigma_i})
-	    	\end{equation}
-	    	\item Additive blending based on this measure
+	    	\begin{figure}
+	    		\centering
+	    		\includegraphics[width=0.5\textwidth]{curvature_water.png}
+	    	\end{figure}
 	    \end{itemize}
 	\end{frame}
 	\begin{frame}[t]\frametitle{Noise}
@@ -140,7 +140,9 @@
 	    \end{itemize}
 	    \begin{figure}
 			\centering
-			\includegraphics[width=0.5\textwidth]{noise_water.png}
+			\includegraphics[width=0.4\textwidth]{curvature_water.png}
+			\hspace{1em}
+			\includegraphics[width=0.4\textwidth]{noise_water.png}
 		\end{figure}
 	\end{frame}
 	\begin{frame}[t]\frametitle{Foam}
