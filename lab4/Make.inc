@@ -1,5 +1,5 @@
 SOURCES =	main.cpp
 OBJECTS =	main.o
-TARGET 	= 	lab3
+TARGET 	= 	lab4
 
 

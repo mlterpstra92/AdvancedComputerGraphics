@@ -28,7 +28,7 @@ CGparameter bottom = NULL;
 CGparameter unproj_scale = NULL;
 CGparameter unproj_offset = NULL;
 CGparameter near_fp = NULL;
-
+CGparameter screenSpaceRadius = NULL;
 CGparameter zb_scale = NULL;
 CGparameter zb_offset = NULL;
 
@@ -155,6 +155,7 @@ void display()
     cgSetParameter1f(near_fp, znear);
     cgSetParameter1f(zb_scale, (zfar*znear)/(zfar-znear));
     cgSetParameter1f(zb_offset, zfar/(zfar-znear));
+    cgSetParameter1f(screenSpaceRadius, 3.0f);
         
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     
@@ -367,6 +368,7 @@ int main(int argc, char *argv[])
     near_vp = getNamedParameter(vertexProgram, "near");
     top = getNamedParameter(vertexProgram, "top");
     bottom = getNamedParameter(vertexProgram, "bottom");
+    screenSpaceRadius = getNamedParameter(vertexProgram, "screenSpaceRadius");
     
     unproj_scale = getNamedParameter(fragmentProgram, "unproj_scale");
     unproj_offset = getNamedParameter(fragmentProgram, "unproj_offset");

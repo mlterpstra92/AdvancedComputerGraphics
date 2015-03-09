@@ -9,6 +9,7 @@ void main(float4 pvec : POSITION,
   uniform float near,
   uniform float top,
   uniform float bottom,
+  uniform float screenSpaceRadius,
   
   out float4 pout : POSITION,
   out float psize : PSIZE,
@@ -23,8 +24,9 @@ void main(float4 pvec : POSITION,
   pout = mul(modelViewProj, pvec);
 
   //float radius = max(length(uvec), length(vvec));
-  float radius = sqrt(max(dot(uvec, uvec), dot(vvec, vvec)));  
-  psize = 2.0 * radius * (-near / peye.z) * (wsize.y / (top - bottom));
+  float radius = sqrt(max(dot(uvec, uvec), dot(vvec, vvec)));
+
+  psize = 2.0 * max(radius * (-near / peye.z) * (wsize.y / (top - bottom)), screenSpaceRadius);
   
   float3 ueye = mul(modelView, float4(uvec, 0)).xyz;
   float3 veye = mul(modelView, float4(vvec, 0)).xyz;
@@ -37,8 +39,8 @@ void main(float4 pvec : POSITION,
   
   depthin = dot(peye, uCrossV);
   
-  if(depthin > 0.0)
-  {
-    pout.w = -1.0;
-  }
+  // if(depthin > 0.0)
+  // {
+  //   pout.w = -1.0;
+  // }
 }
