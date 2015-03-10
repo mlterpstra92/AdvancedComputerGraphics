@@ -4,6 +4,7 @@ void main(
   float3 minUCrossP   : TEXCOORD2,
   float3 uCrossV   : TEXCOORD3,
   float depthin : TEXCOORD4,
+  int2 pscreen : TEXCOORD5,
   float2 wpos : WPOS,
   
   uniform float near,

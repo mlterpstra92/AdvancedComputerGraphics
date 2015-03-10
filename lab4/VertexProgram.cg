@@ -17,11 +17,14 @@ void main(float4 pvec : POSITION,
   out float3 pCrossMinV : TEXCOORD1,
   out float3 minUCrossP : TEXCOORD2,
   out float3 uCrossV : TEXCOORD3,
-  out float depthin : TEXCOORD4
+  out float depthin : TEXCOORD4,
+  out int2  pscreen : TEXCOORD5  
 )
 {
   float4 peye = mul(modelView, pvec);
   pout = mul(modelViewProj, pvec);
+  // Map values between (-1, 1) to (0, wsize)
+  pscreen = 0.5 * (pout.xy + 1.0) * wsize;
 
   //float radius = max(length(uvec), length(vvec));
   float radius = sqrt(max(dot(uvec, uvec), dot(vvec, vvec)));
@@ -39,8 +42,8 @@ void main(float4 pvec : POSITION,
   
   depthin = dot(peye, uCrossV);
   
-  // if(depthin > 0.0)
-  // {
-  //   pout.w = -1.0;
-  // }
+  if(depthin > 0.0)
+  {
+    pout.w = -1.0;
+  }
 }
