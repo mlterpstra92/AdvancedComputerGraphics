@@ -10,6 +10,7 @@ void main(
   uniform float near,
   uniform float2 unproj_scale,
   uniform float2 unproj_offset,
+  uniform float screenSpaceRadius,
   
   uniform float zb_scale,
   uniform float zb_offset,
@@ -29,15 +30,15 @@ void main(
   float v = dot(qn, minUCrossP)/dn;
   
   float dist_sq = u * u + v * v;
-  // Squared distance between vertex point in screen space and fragment position
-  float dist_screen = (pscreen.x - wpos.x) * (pscreen.x - wpos.x) + (pscreen.y - wpos.y) * (pscreen.y - wpos.y);
-  // First do min, then square root to save computational time
-  float dist = sqrt(min(dist_sq, dist_screen));
+  // Normalized squared distance between vertex point in screen space and fragment position
+  float dist_screen = ((pscreen.x - wpos.x) * (pscreen.x - wpos.x) + (pscreen.y - wpos.y) * (pscreen.y - wpos.y)) / (screenSpaceRadius * screenSpaceRadius);
   
-  if(dist > 1.0)
+  if(dist_sq > 1.0 && dist_screen > 1.0)
   {
     discard;
   }
+  // First do min, then square root to save computational time
+  float dist = sqrt(min(dist_sq, dist_screen));
   float alpha = smoothstep(1.0, 0.0, dist);
   
   float lambda = depthin/dn;
@@ -46,10 +47,7 @@ void main(
   depthout = zb_scale/qz + zb_offset;
   
   // We're turned of blending, so we manually multiply the color by the alpha.
-  // colorout.rgb = color.rgb * alpha;  
-
-  // Debug  
-  // colorout.rgb = float3(dist_sq, dist_sq, dist_sq);
+  colorout.rgb = color.rgb * alpha;  
   colorout.a = alpha;
   
   // Write out the normals and lambda (for reconstructing surface

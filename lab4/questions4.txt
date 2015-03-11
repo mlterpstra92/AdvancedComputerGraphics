@@ -11,13 +11,16 @@ Question 3: A vertex shader always outputs the homogeneous vertex
 coordinates in clip-space in the \texttt{POSITION} binding semantic. Which
 two steps are needed to get to the window coordinates from there?
 
+First the homogeneous coordinates need to be normalized (by dividing by w).
+Then the coordinates need to be scaled from (-1,1) to (0,wsize).
+
 
 Question 4: Why is taking the minimum of the two squared distances
 before applying the Gaussian equivalent to taking the maximum of the
 resulting kernel function values? (Given that the standard deviation is the
 same in both cases)
 
-The resulting kernel value maximal when the distance is zero, when the distance increases, the kernel value will decrease.
+The resulting kernel value is maximal when the distance is zero, when the distance increases, the kernel value will decrease.
 
 Question 5: For very large sizes of the screen-space filter,
 around 22, black areas start to appear around splats that are most
@@ -26,3 +29,5 @@ anti-alias, for example, the lion. This is due to the depth extrapolation,
 which becomes invalid outside of the object-space splats, and thus starts to
 obscure things that should not be when the screen-space filter makes the
 splats bigger. How could this be resolved?
+
+Check if the splat is (almost) perpendicular to the viewing plane, if this is the case, then no anti-aliasing should be applied.

@@ -24,7 +24,8 @@ void main(float4 pvec : POSITION,
   float4 peye = mul(modelView, pvec);
   pout = mul(modelViewProj, pvec);
   // Map values between (-1, 1) to (0, wsize)
-  pscreen = 0.5 * (pout.xy + 1.0) * wsize;
+  float2 tmp = pout.xy / pout.w;
+  pscreen = 0.5 * (tmp + 1.0) * wsize;
 
   //float radius = max(length(uvec), length(vvec));
   float radius = sqrt(max(dot(uvec, uvec), dot(vvec, vvec)));
