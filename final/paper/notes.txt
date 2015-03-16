@@ -1,0 +1,4 @@
+Thickness is written in DEPTH_COMPONENT because we want to store one scalar value per texel.
+
+A good value for the radius per particle still needs to be determined.
+
