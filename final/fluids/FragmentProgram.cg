@@ -1,0 +1,7 @@
+void main(
+	float2 wpos : WPOS,
+	out float depth : DEPTH
+	)
+{
+
+}

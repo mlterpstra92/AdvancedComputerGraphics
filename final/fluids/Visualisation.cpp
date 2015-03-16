@@ -23,12 +23,11 @@ Visualisation::Visualisation()
 
 void Visualisation::renderParticles()
 {   
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     //support only 1 fluid this way
     if (sim.fluids[0]->particles.size() > 0)
     {
-        cgGLSetStateMatrixParameter(
-            cgGetNamedParameter(shader.vertexProgram, "modelViewProj"), 
-            CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+        
         cgGLEnableProfile(shader.vertexProfile);
         cgGLBindProgram(shader.vertexProgram);
         glEnableClientState(GL_VERTEX_ARRAY);

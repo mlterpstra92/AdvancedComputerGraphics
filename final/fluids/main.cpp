@@ -69,6 +69,32 @@ void display(void)
     glLoadIdentity();
     perspectiveGL(vis.zoomFactor * fovy, (float)w_width/w_height, view_near, view_far);
 
+    cgGLSetStateMatrixParameter(
+        cgGetNamedParameter(shader.vertexProgram, "modelViewProj"), 
+        CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetStateMatrixParameter(
+        cgGetNamedParameter(shader.vertexProgram, "modelView"), 
+        CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetParameter2f(cgGetNamedParameter(shader.vertexProgram, "wsize"), w_width, w_height);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "near"), view_near);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "top"), view_top);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "bottom"), view_bottom);
+    float radius;
+    if (sim.fluids[0]->particles.size() != 0)
+    {
+        radius = sim.fluids[0]->particles[0].renderRadius();
+        glClientActiveTexture(GL_TEXTURE0);
+        glTexCoordPointer(1, GL_DOUBLE, sizeof(Particle), &sim.fluids[0]->particles[0].density);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+    else
+    {
+        radius = 0;
+    }
+
+    cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "radius"), radius);
+
+
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(eye[0], eye[1], eye[2],
@@ -82,7 +108,8 @@ void display(void)
     vis.renderParticles();
     
     frames++;
-
+    glClientActiveTexture(GL_TEXTURE0);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glFlush();
     glutSwapBuffers();
 }
