@@ -2,3 +2,6 @@ Thickness is written in DEPTH_COMPONENT because we want to store one scalar valu
 
 A good value for the radius per particle still needs to be determined.
 
+Density is currently not used.
+
+pscreen from lab4 can be used to determine the center position of the particle on the screen.

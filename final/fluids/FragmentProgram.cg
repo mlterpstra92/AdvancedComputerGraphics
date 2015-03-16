@@ -1,7 +1,18 @@
 void main(
 	float2 wpos : WPOS,
-	out float depth : DEPTH
+	float2 pscreen : TEXCOORD0, // position of particle in window coordinates
+
+	out float depth : DEPTH,
+	out float4 col  :COLOR
 	)
 {
+	// squared distance between particle point in screen space and fragment position
+	float2 diff = pscreen - wpos;
+	float dist_screen = dot(diff, diff);
+	if(dist_screen > 1.0)
+	{
+		discard;
+	}
+	// float depth = -smoothstep(1.0, 0.0, sqrt(dist_screen));
 
 }
