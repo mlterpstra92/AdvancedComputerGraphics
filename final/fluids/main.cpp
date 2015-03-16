@@ -93,7 +93,7 @@ void reshape(int width, int height)
     w_height = height;
     glViewport(0, 0, w_width, w_height);
     perspectiveGL(vis.zoomFactor * fovy, (float)w_width/w_height, view_near, view_far);
-
+    vis.setupFBOs(w_width, w_height);
     glutPostRedisplay();
 }
 

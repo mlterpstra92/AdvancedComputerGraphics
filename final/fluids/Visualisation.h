@@ -15,6 +15,7 @@ public:
 	Visualisation();
 	void renderParticles();
 	void initialise();
+	void setupFBOs(int w_width, int w_height);
 
 	float rotationX;
 	float rotationY;
@@ -25,7 +26,7 @@ public:
 	float baseX;
 	float baseY;
 	float baseZ;
-	GLuint fbo, depth_buffer, thickness_buffer;
+	GLuint fbo, depth_buffer, thickness_tex;
 };
 
 #endif

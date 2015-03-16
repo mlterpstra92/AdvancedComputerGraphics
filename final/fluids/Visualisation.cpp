@@ -44,6 +44,33 @@ void Visualisation::renderParticles()
     }
 }
 
+void Visualisation::setupFBOs(int w_width, int w_height)
+{
+    glDeleteFramebuffersEXT(1, &fbo);
+    glDeleteRenderbuffers(1, &depth_buffer);
+    glDeleteTextures(1, &thickness_tex);
+    
+    glGenTextures(1, &thickness_tex);
+    glBindTexture(GL_TEXTURE_2D, thickness_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, w_width, w_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    glGenRenderbuffersEXT(1, &depth_buffer);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_buffer);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT16, w_width, w_height);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+    
+    glGenFramebuffersEXT(1, &fbo);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, thickness_tex, 0);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER_EXT, depth_buffer);
+
+    assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+}
+
 void Visualisation::initialise()
 {
     shader.context = cgCreateContext();
