@@ -17,6 +17,7 @@
 #include "Simulation.h"
 #include "Visualisation.h"
 #include "main.h"
+#include "Shader.h"
 
 // view parameter for glFrustum
 float view_left = -1.0;
@@ -40,6 +41,7 @@ const float up[] =     { 0.0, 1.0, 0.0 };
 int mainWindow;
 Visualisation vis;
 Simulation sim;
+Shader shader;
 int frames = 0;
 
 void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar )

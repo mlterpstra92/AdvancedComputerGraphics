@@ -1,0 +1,7 @@
+void main(float4 pos : POSITION,
+  uniform float4x4 modelViewProj,
+  out float4 out_pos : POSITION
+)
+{
+  out_pos = mul(modelViewProj, pos);
+}

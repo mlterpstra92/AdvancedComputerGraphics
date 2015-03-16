@@ -1,7 +1,7 @@
+#include "Visualisation.h"
 #include <GL/glui.h>
 #include "UI.h"
 #include "main.h"
-#include "Visualisation.h"
 
 void updateSlidingWall(int num)
 {

@@ -2,11 +2,13 @@
 #define _MAIN_H_
 class Visualisation;
 class Simulation;
+class Shader;
 
 typedef unsigned int GLuint;
 
 extern Visualisation vis;
 extern Simulation sim;
+extern Shader shader;
 
 extern float view_left;
 extern float view_right;

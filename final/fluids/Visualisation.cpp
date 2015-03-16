@@ -26,6 +26,11 @@ void Visualisation::renderParticles()
     //support only 1 fluid this way
     if (sim.fluids[0]->particles.size() > 0)
     {
+        cgGLSetStateMatrixParameter(
+            cgGetNamedParameter(shader.vertexProgram, "modelViewProj"), 
+            CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+        cgGLEnableProfile(shader.vertexProfile);
+        cgGLBindProgram(shader.vertexProgram);
         glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(3, GL_DOUBLE, sizeof(Particle), sim.fluids[0]->particles[0].position); // position
 
@@ -35,10 +40,13 @@ void Visualisation::renderParticles()
                 std::cout << gluErrorString(glGetError()) << '\n';
 
         glDisableClientState(GL_VERTEX_ARRAY);
+        cgGLDisableProfile(shader.vertexProfile);
     }
 }
 
 void Visualisation::initialise()
 {
-
+    shader.context = cgCreateContext();
+    shader.chooseCgProfiles();
+    shader.loadCgPrograms();
 }

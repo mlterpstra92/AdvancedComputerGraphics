@@ -1,6 +1,8 @@
 #ifndef _H_VISUALISATION_H_
 #define _H_VISUALISATION_H_
 
+#include <GL/glew.h>
+#include <GL/glut.h>
 #include "Particle.h"
 #include "Wall.h"
 #include "Simulation.h"
@@ -23,6 +25,7 @@ public:
 	float baseX;
 	float baseY;
 	float baseZ;
+	GLuint fbo, depth_buffer, thickness_buffer;
 };
 
 #endif
