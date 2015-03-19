@@ -10,20 +10,17 @@ void main(
 
     out float4 out_pos : POSITION,
     out float psize : PSIZE,
-    out float4 col : COLOR,
     out float2 pscreen : TEXCOORD0,
-    out float sphereRadius : TEXCOORD1
+    out float sphereRadius : TEXCOORD1,
+    out float4 eye_pos : TEXCOORD2,
+    out float point_radius : TEXCOORD3
 )
 {
-    float4 eye_pos = mul(modelView, pos);
+    eye_pos = mul(modelView, pos);
     out_pos = mul(modelViewProj, pos);
     // Determine the particle center position in screen space
     pscreen = 0.5 * ((out_pos.xy / out_pos.w) + 1.0) * wsize;
     psize = 2.0 * radius * (-near / eye_pos.z) * (wsize.y / (top - bottom));
+    point_radius = radius;
     sphereRadius = psize / 2.0;
-    // Emit color as Prussian Blue
-    col = float4(0.0, 0.49, 0.83, 1);
-
-    // Emit position as color (DEBUG)
-    // col = float4(out_pos.xyz, .25);
 }

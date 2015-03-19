@@ -98,6 +98,9 @@ void display(void)
     cgGLSetStateMatrixParameter(
         cgGetNamedParameter(shader.vertexProgram, "modelView"), 
         CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetStateMatrixParameter(
+        cgGetNamedParameter(shader.fragmentProgram, "projection_mat"), 
+        CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetParameter2f(cgGetNamedParameter(shader.vertexProgram, "wsize"), w_width, w_height);
     cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "near"), view_near);
     cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "top"), view_top);
@@ -113,6 +116,8 @@ void display(void)
     }
     cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "radius"), radius);
     
+    // glEnable(GL_BLEND);
+    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     // Bind shaders
     cgGLEnableProfile(shader.vertexProfile);
     cgGLBindProgram(shader.vertexProgram);    
