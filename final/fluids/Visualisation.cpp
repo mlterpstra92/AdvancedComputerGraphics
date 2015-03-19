@@ -67,7 +67,5 @@ void Visualisation::setupFBOs(int w_width, int w_height)
 
 void Visualisation::initialise()
 {
-    shader.context = cgCreateContext();
-    shader.chooseCgProfiles();
-    shader.loadCgPrograms();
+    shader.init();
 }

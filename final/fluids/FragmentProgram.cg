@@ -1,18 +1,20 @@
 void main(
 	float2 wpos : WPOS,
 	float2 pscreen : TEXCOORD0, // position of particle in window coordinates
-
+	float sphereRadius : TEXCOORD1,
+	float4 in_col : COLOR,
 	out float depth : DEPTH,
-	out float4 col  :COLOR
+	out float4 col  : COLOR
 	)
 {
 	// squared distance between particle point in screen space and fragment position
 	float2 diff = pscreen - wpos;
 	float dist_screen = dot(diff, diff);
-	if(dist_screen > 1.0)
+	// Discard fragment if it falls outside the sphere
+	if(dist_screen > dot(sphereRadius, sphereRadius))
 	{
 		discard;
 	}
-	// float depth = -smoothstep(1.0, 0.0, sqrt(dist_screen));
 
+	col = in_col;
 }

@@ -64,7 +64,9 @@ void surfaceDepthPass()
 {
     glColorMask(GL_FALSE,GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
     vis.renderParticles();
+    glEnable(GL_DEPTH_TEST);
     glColorMask(GL_TRUE,GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_FALSE);
 }
@@ -113,7 +115,9 @@ void display(void)
     
     // Bind shaders
     cgGLEnableProfile(shader.vertexProfile);
-    cgGLBindProgram(shader.vertexProgram);
+    cgGLBindProgram(shader.vertexProgram);    
+    cgGLEnableProfile(shader.fragmentProfile);
+    cgGLBindProgram(shader.fragmentProgram);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     // Bind fbo
@@ -128,6 +132,7 @@ void display(void)
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     vis.renderParticles();
     cgGLDisableProfile(shader.vertexProfile);
+    cgGLDisableProfile(shader.fragmentProfile);
 
 
     // draw texture to full screen quad

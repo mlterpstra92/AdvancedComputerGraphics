@@ -25,10 +25,7 @@ public:
 	{
 	    fprintf(stderr, "Cg error: %s\n", cgGetErrorString(cgGetError()));
 	}
-
-	Shader() {
-		cgSetErrorCallback(handleCgError);
-	}
+	void init();
 };
 
 #endif

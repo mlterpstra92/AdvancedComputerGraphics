@@ -9,9 +9,6 @@
 #include <iostream>
 #include <assert.h>
 
-
-
-
 /* Choose profiles, set optimal options */
 void Shader::chooseCgProfiles()
 {
@@ -19,10 +16,8 @@ void Shader::chooseCgProfiles()
     cgGLSetOptimalOptions(vertexProfile);
     fragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
     cgGLSetOptimalOptions(fragmentProfile);
-    printf("vertex profile:   %s\n",
-         cgGetProfileString(vertexProfile));
-    printf("fragment profile: %s\n",
-         cgGetProfileString(fragmentProfile));
+    printf("vertex profile:   %s\n", cgGetProfileString(vertexProfile));
+    printf("fragment profile: %s\n", cgGetProfileString(fragmentProfile));
 
 }
 
@@ -33,26 +28,25 @@ CGprogram Shader::loadCgProgram(CGprofile profile, const char *filename)
     assert(cgIsContext(context));
 
     fprintf(stderr, "Cg program %s creating.\n", filename);
-    program = cgCreateProgramFromFile(context, CG_SOURCE,
-            filename, profile, NULL, NULL);
+    program = cgCreateProgramFromFile(context, CG_SOURCE, filename, profile, NULL, NULL);
     
-    if(!cgIsProgramCompiled(program)) {
+    if(!cgIsProgramCompiled(program)) 
+    {
         printf("%s\n",cgGetLastListing(context));
         exit(1);
     }
-    
+
     fprintf(stderr, "Cg program %s loading.\n", filename);
     cgGLLoadProgram(program);
     
     return program;
 }
 
-
 void Shader::loadCgPrograms()
 {
     /* Load all Cg programs that are used with loadCgProgram */
     vertexProgram = loadCgProgram(vertexProfile, "VertexProgram.cg");
-    // fragmentProgram = loadCgProgram(fragmentProfile, "FragmentProgram.cg");
+    fragmentProgram = loadCgProgram(fragmentProfile, "FragmentProgram.cg");
 }
 
 CGparameter Shader::getNamedParameter( CGprogram program, const char * name )
@@ -64,4 +58,12 @@ CGparameter Shader::getNamedParameter( CGprogram program, const char * name )
     }
     
     return result;
+}
+
+void Shader::init()
+{
+    cgSetErrorCallback(handleCgError);
+    context = cgCreateContext();
+    chooseCgProfiles();
+    loadCgPrograms();
 }
