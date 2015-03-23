@@ -16,6 +16,7 @@ public:
 
 	CGprogram vertexProgram = NULL;
 	CGprogram fragmentProgram = NULL;
+	CGprogram textureProgram = NULL;
 
 	CGparameter getNamedParameter( CGprogram program, const char * name );
 	void chooseCgProfiles();

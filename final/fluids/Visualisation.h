@@ -26,7 +26,7 @@ public:
 	float baseX;
 	float baseY;
 	float baseZ;
-	GLuint fbo, depth_buffer, thickness_tex;
+	GLuint fbo, depth_tex, color_tex;
 };
 
 #endif

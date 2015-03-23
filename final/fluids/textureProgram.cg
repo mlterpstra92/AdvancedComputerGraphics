@@ -1,0 +1,17 @@
+void main(
+    int2 wpos : WPOS,
+    
+    uniform sampler2D colorin,
+
+    out float4 colorout : COLOR
+    )
+{
+    // Extract the parameters we passed in the render targets
+    float4 color = tex2Dfetch(colorin, int4(wpos,0,0));
+    float3 normalizedColor = color.rgb / color.a;
+    colorout = float4(normalizedColor, 1.0);
+    // colorout = float4(1,1,1,1);
+}
+
+
+

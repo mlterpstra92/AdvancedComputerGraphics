@@ -47,6 +47,7 @@ void Shader::loadCgPrograms()
     /* Load all Cg programs that are used with loadCgProgram */
     vertexProgram = loadCgProgram(vertexProfile, "VertexProgram.cg");
     fragmentProgram = loadCgProgram(fragmentProfile, "FragmentProgram.cg");
+    textureProgram = loadCgProgram(fragmentProfile, "textureProgram.cg");
 }
 
 CGparameter Shader::getNamedParameter( CGprogram program, const char * name )

@@ -60,37 +60,8 @@ void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar
     glFrustum( view_left, view_right, view_bottom, view_top, zNear, zFar );
 }
 
-void surfaceDepthPass()
+void setShaderParams()
 {
-    glColorMask(GL_FALSE,GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_TRUE);
-    glEnable(GL_DEPTH_TEST);
-    vis.renderParticles();
-    glEnable(GL_DEPTH_TEST);
-    glColorMask(GL_TRUE,GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_FALSE);
-}
-
-void display(void)
-{
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    perspectiveGL(vis.zoomFactor * fovy, (float)w_width/w_height, view_near, view_far);
-
-    // Set camera position
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(eye[0], eye[1], eye[2],
-              origin[0], origin[1], origin[2],
-              up[0], up[1], up[2]);
-
-    glTranslatef(vis.baseX, vis.baseY, vis.baseZ);
-    glRotatef(vis.rotationX, 1.0, 0.0, 0.0);
-    glRotatef(vis.rotationY, 0.0, 1.0, 0.0);
-
     // Bind variables to shaders
     cgGLSetStateMatrixParameter(
         cgGetNamedParameter(shader.vertexProgram, "modelViewProj"), 
@@ -115,9 +86,39 @@ void display(void)
         radius = 0;
     }
     cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "radius"), radius);
+}
+
+void surfaceDepthPass()
+{
+    glColorMask(GL_FALSE,GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_TRUE);
+    vis.renderParticles();
+    glColorMask(GL_TRUE,GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_FALSE);
+}
+
+void display(void)
+{
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    // glEnable(GL_BLEND);
-    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    perspectiveGL(vis.zoomFactor * fovy, (float)w_width/w_height, view_near, view_far);
+
+    // Set camera position
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(eye[0], eye[1], eye[2],
+              origin[0], origin[1], origin[2],
+              up[0], up[1], up[2]);
+
+    glTranslatef(vis.baseX, vis.baseY, vis.baseZ);
+    glRotatef(vis.rotationX, 1.0, 0.0, 0.0);
+    glRotatef(vis.rotationY, 0.0, 1.0, 0.0);
+
+    setShaderParams();
+
     // Bind shaders
     cgGLEnableProfile(shader.vertexProfile);
     cgGLBindProgram(shader.vertexProgram);    
@@ -127,42 +128,57 @@ void display(void)
 
     // Bind fbo
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, vis.fbo);
-    GLenum bufs[2] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT};
+    GLenum bufs[2] = {GL_COLOR_ATTACHMENT0_EXT, GL_DEPTH_ATTACHMENT_EXT};
     glDrawBuffers(2, bufs);
-    
+
+    // Clear FBO
+    glClearColor(0, 0, 0, 1e-6);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     surfaceDepthPass();
-
+    glDisable(GL_DEPTH_TEST);
     // Bind to screen rendering
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     vis.renderParticles();
+    glDepthMask(GL_TRUE);
     cgGLDisableProfile(shader.vertexProfile);
     cgGLDisableProfile(shader.fragmentProfile);
 
 
     // draw texture to full screen quad
-    // cgGLEnableProfile(shader.fragmentProfile);
-    // cgGLBindProgram(shader.fragmentProgram);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    cgGLEnableProfile(shader.fragmentProfile);
+    cgGLBindProgram(shader.textureProgram);
 
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"), vis.color_tex);
+    cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"));
 
-    // glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    // glMatrixMode (GL_MODELVIEW);
-    // glPushMatrix ();
-    // glLoadIdentity ();
-    // glMatrixMode (GL_PROJECTION);
-    // glPushMatrix ();
-    // glLoadIdentity ();
-    // glBegin (GL_QUADS);
-    // glVertex3i (-1, -1, -1);
-    // glVertex3i (1, -1, -1);
-    // glVertex3i (1, 1, -1);
-    // glVertex3i (-1, 1, -1);
-    // glEnd ();
-    // glPopMatrix ();
-    // glMatrixMode (GL_MODELVIEW);
-    // glPopMatrix ();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // glEnable(GL_TEXTURE_2D);
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, vis.color_tex);
+
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glBegin (GL_QUADS);
+    glVertex3i (-1, -1, -1);
+    glVertex3i (1, -1, -1);
+    glVertex3i (1, 1, -1);
+    glVertex3i (-1, 1, -1);
+    glEnd ();
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
     frames++;
     glFlush();
+
+    cgGLDisableProfile(shader.fragmentProfile);
+
     glutSwapBuffers();
 }
 
