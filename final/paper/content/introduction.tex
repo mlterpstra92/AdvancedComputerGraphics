@@ -1,3 +1,20 @@
 %!TEX root = ../report.tex
-\section*{Introduction}
+\section{Introduction}
+% Sketch the context (what is it all about), what is the application domain (some pictures usually help here). Give required background knowledge.
+Fluids are abundant in nature: whether close to our homes, falling from the sky, deep in the earth in the form of magma, or in large volumes as lakes or oceans, fluids are nearly guaranteed to be found everywhere. 
+These fluids are not only necessary for most animals roaming the planet to survive, but are also used by humans in industrial processes to obtain power, starch, sawed wood or cooling in our engines.
 
+For some applications it may be useful to simulate these fluids using computers in order to improve usage of the fluids in certain situations.
+By using visualizations of fluids bottlenecks or missed opportunities in systems may be identified and the model can modified to improve the system.
+This kind of visualizations are mainly used in engineering.
+
+Other types of visualizations, which are mainly used in academia, includes fields of research as oceanography, volcanology and astrophysics. 
+In these kind of visualizations, entire systems are modeled to identify breaking points or how different parameters may affect an entire system.
+
+There are several methods available for simulating fluids, such as the Eulerian method or the Smoothed Particle Hydrodynamics (SPH). The Eulerian method is fairly straightforward, as it describes fluid motion as an integration of the surface over time. 
+This simple technique comes with a downside in the fact that it requires a (finite) grid on which the fluid moves, which is computationally expensive and limits the fluid in that it cannot move everywhere.
+SPH proves to be a viable alternative. 
+With this technique, a body of fluid is reduced to a number of particles, where each particle has a position, velocity, acceleration and density.
+These properties can be used to extract a smoothed surface which can then be visualized in an aesthetically pleasing way. 	
+
+Simulating a fluid is only half the battle. The insight gained from a fluid rendering can increased by having a natural visualization of the system. 
