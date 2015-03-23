@@ -1,49 +1,48 @@
-
-% \documentclass[a4paper, 10pt, twoside]{report}
-\documentclass[a4paper,10pt, twoside]{article}
-
-\input{style/style.tex}
-
+%% BEGIN INCLUDE
+\documentclass[a4paper, 10pt, twocolumn]{eguk2000}
+\usepackage[square]{natbib}
+%\pagestyle{empty}
 \begin{document}
+%% END INCLUDE
 
-\selectlanguage{english}
+\title{Screen Space Fluid Rendering with Curvature Flow}
+\author{{\sffamily Maarten Terpstra${}^\ast$ and Bram Musters${}^\ast$}\\
+\\
+${}^\ast$Department of Computing Science\\
+University of Groningen\\
+Nijenborgh 9\\
+Groningen 9747 AG\\
+{\tt \{m.l.terpstra, b.t.musters\}@student.rug.nl}\\
+\\
+\parbox{140truemm}{\normalsize
+{\bfseries Abstract}\\
+This should contain a brief description
+of the paper, setting it in the context of other work, describing its
+main features and indicating the advances achieved. The abstract is
+meant to be succinct, not extending beyone about half a dozen lines,
+but should give potential readers an idea of the paper's potential
+importance.}
+\\
+\\
+\parbox{140truemm}{\normalsize
+{\bfseries Keywords:}
+}
+} %end author
 
-%----------------------------------------------------------------------------------------
-%	TITLEPAGE
-%----------------------------------------------------------------------------------------
-\input{./content/titlepage}
-
-%----------------------------------------------------------------------------------------
-%	ABSTRACT
-%----------------------------------------------------------------------------------------
-%\input{./content/abstract.tex}
-
-%----------------------------------------------------------------------------------------
-%	TABLEOFCONTENTS
-%----------------------------------------------------------------------------------------
-%\tableofcontents
-
-%----------------------------------------------------------------------------------------
-%	GLOSSARY
-%----------------------------------------------------------------------------------------
-%\include{./content/glossary}
-
-%----------------------------------------------------------------------------------------
-%	SECTIONS
-%----------------------------------------------------------------------------------------
-\pagenumbering{arabic}
-
-
-\input{./content/exercise1}
-
-%----------------------------------------------------------------------------------------
-%	BIBLIOGRAPHY
-%----------------------------------------------------------------------------------------
-
-% \addcontentsline{toc}{section}{References}
-% \bibliographystyle{unsrtnat}
-% \bibliography{references}
+\date{}
 
 
+\maketitle 
 
+\input{content/introduction}
+\input{content/definition}
+\input{content/solution}
+\input{content/implementation}
+\input{content/results}
+
+
+%% BEGIN INCLUDE
+\bibliographystyle{eguk2000}
+\bibliography{references}
 \end{document}
+%% END INCLUDE
