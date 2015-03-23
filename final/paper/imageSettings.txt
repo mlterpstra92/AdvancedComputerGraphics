@@ -1,0 +1,167 @@
+
+Default settings:
+   Alpha: 0.05
+   Beta: 0
+   Gamma: 1
+   Kappa: 0.6
+   Dmin: 0.5
+   Dmax: 2
+   Iterations: 40
+GVF defaults:
+   Mu: 0.1
+   Iterations: 80
+
+
+u_normal_default:
+   800 iterations
+u_gvf_default:
+   400 iterations
+room_normal_default:
+   800 iterations
+room_gvf_default:
+   400 iterations
+*lung_gvf:
+   200 iterations
+   Mu: 0.2
+   Smoothing: sigma=1
+leftlung_normal:
+   400 iterations
+   Alpha: 0.5
+rightlung_normal:
+   400 iterations
+   Alpha: 0.5
+newleftlung_normal:
+   400 iterations
+   Alpha: 0.5
+newrightlung_normal:
+   400 iterations
+   Alpha: 0.5
+
+heart_gvf_grad0:
+   sigma: 0
+
+heart_gvf_grad1:
+   sigma: 1
+
+heart_gvf_grad2:
+   sigma: 2
+
+heart_gvf_grad3:
+   sigma: 3
+
+heart_gvf1:
+   sigma:1
+   iterations: 100
+   init: heart.mat
+
+heart_gvf2:
+   sigma:1
+   iterations: 100
+   init: heart1.mat
+
+heart_gvf3:
+   sigma:1
+   alpha: 0.5
+   iterations: 100
+   init: heart.mat
+
+heart_gvf4:
+   sigma:1
+   alpha: 0.5
+   iterations: 100
+   init: heart1.mat
+
+heart_gvf5:
+   sigma:0
+   iterations: 100
+   init: heart.mat
+
+heart_gvf6:
+   sigma:0
+   iterations: 100
+   init: heart1.mat
+
+heart_gvf7:
+   sigma:0
+   alpha: 0.5
+   iterations: 100
+   init: heart.mat
+
+heart_gvf8:
+   sigma:0
+   alpha: 0.5
+   iterations: 100
+   init: heart1.mat
+
+heart_gvf9:
+   sigma:2
+   alpha: 0.5
+   iterations: 100
+   init: heart0.mat
+
+heart_gvf10:
+   sigma:2
+   alpha: 0.5
+   iterations: 100
+   init: heart1.mat
+
+heart_gvf11:
+   sigma:3
+   alpha: 0.5
+   iterations: 100
+   init: heart0.mat
+
+heart_gvf12:
+   sigma:3
+   alpha: 0.5
+   iterations: 100
+   init: heart1.mat
+
+heart_normal_0:
+   400 iterations
+   Alpha: 0.5
+   Init: heart.mat
+
+heart_normal_01:
+   400 iterations
+   Alpha: 0.75
+   Init: heart1.mat
+
+heart_normal_1:
+   400 iterations
+   Alpha: 0.75
+   Init: heart.mat
+
+heart_normal_11:
+   400 iterations
+   Alpha: 0.75
+   Init: heart1.mat
+
+heart_normal_2:
+   400 iterations
+   Alpha: 0.75
+   Init: heart.mat
+
+heart_normal_21:
+   200 iterations
+   Alpha: 0.2
+   Init: heart1.mat
+
+ex6_1.png
+   Alpha: 0.2
+   iterations: 100
+   after GVF
+
+ex6_2.png
+   Alpha: 0.2
+   iterations: 100
+   after normal
+
+ex6_3.png
+   Alpha: 0.05
+   iterations: 100
+   after GVF
+
+ex6_4.png
+   Alpha: 0.05
+   iterations: 100

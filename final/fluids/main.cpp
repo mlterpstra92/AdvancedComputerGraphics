@@ -160,9 +160,9 @@ void display(void)
 
     surfaceDepthPass();
 
-    glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glDisable(GL_DEPTH_TEST);
     vis.renderParticles();
     glDepthMask(GL_TRUE);
     cgGLDisableProfile(shader.vertexProfile);
