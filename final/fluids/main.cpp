@@ -60,32 +60,24 @@ void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar
     glFrustum( view_left, view_right, view_bottom, view_top, zNear, zFar );
 }
 
-void setShaderParams()
+void setdepthShaderParams()
 {
     // Bind variables to shaders
     cgGLSetStateMatrixParameter(
-        cgGetNamedParameter(shader.vertexProgram, "modelViewProj"), 
+        cgGetNamedParameter(shader.depthVertexProgram, "modelViewProj"), 
         CG_GL_MODELVIEW_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetStateMatrixParameter(
-        cgGetNamedParameter(shader.vertexProgram, "modelView"), 
+        cgGetNamedParameter(shader.depthVertexProgram, "modelView"), 
         CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetStateMatrixParameter(
-        cgGetNamedParameter(shader.fragmentProgram, "projection_mat"), 
+        cgGetNamedParameter(shader.depthFragmentProgram, "projection_mat"), 
         CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
-    cgGLSetParameter2f(cgGetNamedParameter(shader.vertexProgram, "wsize"), w_width, w_height);
-    cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "near"), view_near);
-    cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "top"), view_top);
-    cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "bottom"), view_bottom);
-    float radius;
-    if (sim.fluids[0]->particles.size() != 0)
-    {
-        radius = sim.fluids[0]->particles[0].renderRadius();
-    }
-    else
-    {
-        radius = 0;
-    }
-    cgGLSetParameter1f(cgGetNamedParameter(shader.vertexProgram, "radius"), radius);
+    cgGLSetParameter2f(cgGetNamedParameter(shader.depthVertexProgram, "wsize"), w_width, w_height);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "near"), view_near);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "top"), view_top);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "bottom"), view_bottom);
+    float radius = (sim.fluids[0]->particles.size() != 0) ? sim.fluids[0]->particles[0].renderRadius() : 0;
+    cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "radius"), radius);
 }
 
 void surfaceDepthPass()
@@ -95,6 +87,37 @@ void surfaceDepthPass()
     vis.renderParticles();
     glColorMask(GL_TRUE,GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_FALSE);
+}
+
+
+void drawTextureToScreen()
+{
+    // draw texture to full screen quad
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    cgGLEnableProfile(shader.fragmentProfile);
+    cgGLBindProgram(shader.textureProgram);
+
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"), vis.color_tex);
+    cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"));
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glBegin (GL_QUADS);
+    glVertex3i (-1, -1, -1);
+    glVertex3i (1, -1, -1);
+    glVertex3i (1, 1, -1);
+    glVertex3i (-1, 1, -1);
+    glEnd ();
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+
+    cgGLDisableProfile(shader.fragmentProfile);
 }
 
 void display(void)
@@ -117,13 +140,13 @@ void display(void)
     glRotatef(vis.rotationX, 1.0, 0.0, 0.0);
     glRotatef(vis.rotationY, 0.0, 1.0, 0.0);
 
-    setShaderParams();
+    setdepthShaderParams();
 
     // Bind shaders
     cgGLEnableProfile(shader.vertexProfile);
-    cgGLBindProgram(shader.vertexProgram);    
+    cgGLBindProgram(shader.depthVertexProgram);    
     cgGLEnableProfile(shader.fragmentProfile);
-    cgGLBindProgram(shader.fragmentProgram);
+    cgGLBindProgram(shader.depthFragmentProgram);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     // Bind fbo
@@ -136,8 +159,8 @@ void display(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     surfaceDepthPass();
+
     glDisable(GL_DEPTH_TEST);
-    // Bind to screen rendering
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     vis.renderParticles();
@@ -145,40 +168,10 @@ void display(void)
     cgGLDisableProfile(shader.vertexProfile);
     cgGLDisableProfile(shader.fragmentProfile);
 
+    drawTextureToScreen();
 
-    // draw texture to full screen quad
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    cgGLEnableProfile(shader.fragmentProfile);
-    cgGLBindProgram(shader.textureProgram);
-
-    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"), vis.color_tex);
-    cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"));
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // glEnable(GL_TEXTURE_2D);
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, vis.color_tex);
-
-    glMatrixMode (GL_MODELVIEW);
-    glPushMatrix ();
-    glLoadIdentity ();
-    glMatrixMode (GL_PROJECTION);
-    glPushMatrix ();
-    glLoadIdentity ();
-    glBegin (GL_QUADS);
-    glVertex3i (-1, -1, -1);
-    glVertex3i (1, -1, -1);
-    glVertex3i (1, 1, -1);
-    glVertex3i (-1, 1, -1);
-    glEnd ();
-    glPopMatrix ();
-    glMatrixMode (GL_MODELVIEW);
-    glPopMatrix ();
     frames++;
     glFlush();
-
-    cgGLDisableProfile(shader.fragmentProfile);
-
     glutSwapBuffers();
 }
 

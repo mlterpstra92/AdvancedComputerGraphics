@@ -14,8 +14,8 @@ public:
 	CGcontext	context;
 	CGprofile	vertexProfile, fragmentProfile;
 
-	CGprogram vertexProgram = NULL;
-	CGprogram fragmentProgram = NULL;
+	CGprogram depthVertexProgram = NULL;
+	CGprogram depthFragmentProgram = NULL;
 	CGprogram textureProgram = NULL;
 
 	CGparameter getNamedParameter( CGprogram program, const char * name );

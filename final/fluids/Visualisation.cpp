@@ -44,7 +44,7 @@ void Visualisation::setupFBOs(int w_width, int w_height)
     glDeleteRenderbuffers(1, &depth_tex);
     glDeleteTextures(1, &color_tex);
     
-    // Color textyre
+    // Color texture
     glGenTextures(1, &color_tex);
     glBindTexture(GL_TEXTURE_2D, color_tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, w_width, w_height, 0, GL_RGBA, GL_FLOAT, NULL);
