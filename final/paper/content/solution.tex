@@ -1,3 +1,14 @@
 %!TEX root = ../report.tex
 \section*{Solution}
+The paper introduced by van der Laan et al. \cite{van2009screen} provides a fitting solution to our problem.
+The paper describes a method for visualizing fluids simulated using SPH in a natural way.
+The goal of the paper is to provide a solution to our aforementioned problem.
+According to the paper, they want to create:
+\begin{enumerate}
+	\item \label{en:item1} Achieves real-time performance, with a configurable speed versus quality trade-off.
+	\item \label{en:item2} Does all the processing, rendering and shading steps directly on the graphics hardware.
+	\item \label{en:item3} Smoothes the surface to prevent the fluid from looking blobby or jelly-like.
+	\item \label{en:item4} Is not based on polygonization, and thus does not suffer from the associated tesellation artifacts.
+\end{enumerate}
 
+Items \ref{en:item1} and \ref{en:item3} have a direct connection with our goals and items \ref{en:item2} and \ref{en:item4} are ways to enable these goals.-
