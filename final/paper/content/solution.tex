@@ -1,5 +1,5 @@
 %!TEX root = ../report.tex
-\section*{Solution}
+\section{Solution}
 The paper introduced by van der Laan et al. \cite{van2009screen} provides a fitting solution to our problem.
 The paper describes a method for visualizing fluids simulated using SPH in a natural way.
 The goal of the paper is to provide a solution to our aforementioned problem.
@@ -14,11 +14,26 @@ According to the paper, they want to create:
 Items \ref{en:item1} and \ref{en:item3} have a direct connection with our goals and items \ref{en:item2} and \ref{en:item4} are ways to enable these goals.
 
 The method described in the paper consists of multiple passes. It assumes that there is a functional SPH simulation where each fluid particle has a density. Then each frame the following steps are performed:
-\begin{itemize}
+\begin{enumerate}
 	\item Splat points as spheres and determine depth values per fragment
 	\item Smooth the spheres based on curvature flow
 	\item Attenuate colors based on thickness
 	\item Add noise texture and advect throughout the simulation
 	\item Add foam
 	\item Render using Fresnel and Phong equations
-\end{itemize}
+\end{enumerate}
+
+\subsection{Depth determination}
+It is desirable to determine depth of fragment in the simulation in order to know which fragments are part of the surface.
+
+\subsection{Smoothing}
+
+\subsection{Thickness}
+
+\subsection{Noise}
+
+\subsection{Foam}
+
+\subsection{Rendering}
+
+\subsection{Fit}
