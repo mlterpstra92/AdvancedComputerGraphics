@@ -35,9 +35,16 @@ This is achieved by translating points along the $z$-axis according the curvatur
 
 Curvature flow is defined by the divergence of the normal by \(2H = \nabla \cdot \hat{\mathbf{n}}\). Subsequently, depth values can be displaced every timestep based on the curvature in that point, as \(\frac{\partial z}{\partial t} = H\).
 
-To obtain normals, the point of which the normal needs to be determined is mapped back to a point in view by inverting the projection transformation. This point is called % $\mathbf{P} = \Colvec[;]{a;b;c} $
-$\Colvec{a}\Colvec{a,b}\Colvec[;]{a;b;c}$
+To obtain normals, the point of which the normal needs to be determined is mapped back to a point in view by inverting the projection transformation. This point is called \[\mathbf{P}(x, y) = \begin{pmatrix}\frac{\frac{2x}{V_x} - 1.0}{F_x}\\\frac{\frac{2y}{V_y} - 1.0}{F_y}\\1\end{pmatrix}z(x,y) = \begin{pmatrix}W_x\\W_y\\1\end{pmatrix}z(x,y)\] where \(V_x\) and \(V_y\) are the viewport dimensions and \(F_x\) and \(F_y\) is the focal length in \(x\) and \(y\) component.
 
+The normal is then obtained by \[\mathbf{n}(x,y) = \frac{\partial \mathbf{P}}{\partial x} \times \frac{\partial \mathbf{P}}{\partial y}\]
+Rigorous algebra shows that \[\mathbf{n}(x,y) = \begin{pmatrix}-C_y\frac{\partial z}{\partial x}\\-C_x\frac{\partial z}{\partial y}\\C_xC_yz\end{pmatrix}z\]. Here \(C_x = \frac{2}{V_xF_x}\) and \(C_y = \frac{2}{V_yF_y}\) 
+
+Subsequently, the unit normal must be obtained. This is obtained by \(\hat{\mathbf{n}}(x,y) = \frac{\mathbf{n}(x,y)}{\mid \mathbf{n}(x,y)\mid}\)
+
+Now that we have an unit normal we can define mean curvature as \[2H = \frac{\partial \hat{\mathbf{n}}_x}{\partial x} + \frac{\partial\hat{\mathbf{n}}_y}{\partial y}\]
+
+These values can be calculated fairly easy and can thus be used to modify the \(z\)-values in the visualization easily and fast using Euler integration in time.
 
 \subsection{Thickness}
 
