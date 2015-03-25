@@ -24,9 +24,20 @@ The method described in the paper consists of multiple passes. It assumes that t
 \end{enumerate}
 
 \subsection{Depth determination}
-It is desirable to determine depth of fragment in the simulation in order to know which fragments are part of the surface.
+It is desirable to determine depth of fragment in the simulation in order to know which fragments are part of the surface. 
+In order to obtain these depth values, the points from the SPH simulation are splatted to discs and their fragments are subjected to a hardware depth test. 
+This result is subsequently written to a depth buffer. 
+Note that merely the depth value is splatted and the color and normal attributes are left unchanged as they will be changed in later steps.
 
 \subsection{Smoothing}
+Smoothing is a critical component in the paper. It is responsible for creating a smooth surface from a set of points so to avoid a blobby and jelly-like surface which is undesirable. The paper argues that this is a better approach than using Gaussian blurring because it performs better and ought to produce better results because there will be no silhouette blurring. 
+This is achieved by translating points along the $z$-axis according the curvature flow. 
+
+Curvature flow is defined by the divergence of the normal by \(2H = \nabla \cdot \hat{\mathbf{n}}\). Subsequently, depth values can be displaced every timestep based on the curvature in that point, as \(\frac{\partial z}{\partial t} = H\).
+
+To obtain normals, the point of which the normal needs to be determined is mapped back to a point in view by inverting the projection transformation. This point is called % $\mathbf{P} = \Colvec[;]{a;b;c} $
+$\Colvec{a}\Colvec{a,b}\Colvec[;]{a;b;c}$
+
 
 \subsection{Thickness}
 
