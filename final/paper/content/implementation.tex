@@ -1,3 +1,24 @@
 %!TEX root = ../report.tex
-\section*{Implementation}
+\section{Implementation}
+The solution that has been proposed in the previous section is implemented using the C++ programming language in combination with CG as shading language.
+The actual SPH fluid simulation is given and can be seen in figure \ref{fig:sph}, by implementing the multiple passes described in the previous section, a nature like fluid is expected.
+
+\subsection{Depth determination}
+% TODO: Rephrase?
+The depth at each pixel of each particle closest to the camera is determined using a combination of a vertex- and fragment shader.
+Each particle has a position in world space that is passed to the vertex shader.
+These particles are rendered as spheres to determine the correct depth values.
+
+The vertex shader computes and passes the following properties of each particle to the fragment shader:
+\begin{itemize}
+ 	\item Position of center in eye space.
+ 	\item Position of center in screen space.
+ 	\item Splat size.
+ 	\item Splat radius.
+ \end{itemize} 
+
+The fragment shader uses this input to determine the depth at every fragment.
+To determine this depth, the splat is rendered as a sphere by discarding fragments that fall outside the sphere.
+From this, the normal from the center of the sphere towards its surface is determined by taking the difference of the current fragment position and the current particle center.
+Using this normal, the point is transformed to clip space, the $z$ value of this position is the depth value.
 

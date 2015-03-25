@@ -3,6 +3,7 @@ void main(
 	float2 pscreen : TEXCOORD0, // position of particle in window coordinates
 	float sphereRadius : TEXCOORD1,
 	float4 eye_pos : TEXCOORD2,
+	// TODO: uniform float point_radius, since all point radii are equal
 	float point_radius : TEXCOORD3,
 
 	uniform float4x4 projection_mat,
