@@ -22,3 +22,17 @@ To determine this depth, the splat is rendered as a sphere by discarding fragmen
 From this, the normal from the center of the sphere towards its surface is determined by taking the difference of the current fragment position and the current particle center.
 Using this normal, the point is transformed to clip space, the $z$ value of this position is the depth value.
 
+The depth component of each fragment can be visualized as grey value by setting the R, G and B components to the depth value.
+The results of this visualization can be seen in figure \ref{fig:depth}.
+It can be observed that the particles become darker when they appear  closer to the camera.
+
+\begin{figure}[!th]
+\hrule
+\begin{center}
+\vspace*{2ex}\includegraphics[width=0.48\textwidth]{pictures/depth.png}
+\end{center}
+\caption{Depth component visualization}
+\label{fig:depth} 
+\vspace*{2ex}
+\hrule
+\end{figure}
