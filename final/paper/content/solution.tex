@@ -42,9 +42,19 @@ $\Colvec{a}\Colvec{a,b}\Colvec[;]{a;b;c}$
 \subsection{Thickness}
 
 \subsection{Noise}
-
-\subsection{Foam}
+In order to remove the appearance of an artificially smooth surface, noise has to be added.
+Since the simulation has moving particles in it, the noise has to advect with those particles.
+\cite{van2009screen} suggests to use Perlin noise \cite{perlin1985image}.
+One octave of noise is added to each projected particle, this makes sure that the noise moves along with the fluid flow. 
 
 \subsection{Rendering}
+Finally, all intermediate results are merged together in a final texture that is rendered as full-screen quad.
+The Fresnel equation is used to calculate the correct reflection and refraction vectors needed for the Phong \cite{phong1975illumination} illumination model.
+This results in the following equation \cite{van2009screen}to determine the output color:
+\begin{eqnarray}
+C_{out} = a(1 - F(\mathbf{n} \cdot \mathbf{v})) + bF(\mathbf{n} \cdot \mathbf{v}) + k_s(\mathbf{n} \cdot \mathbf{h})^\alpha.
+\end{eqnarray}
+$F$ is the Fresnel equation, $a$ is the refracted fluid color, $b$ is the reflected scene color, $k_s$ and $\alpha$ are both constant and represent the specular highlight. $\mathbf{n}$ is the normal along the surface, $\mathbf{h}$ is the half-angle between the camera and the light, and $\mathbf{v}$ is the direction pointing towards the camera.
+
 
 \subsection{Fit}

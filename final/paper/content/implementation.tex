@@ -1,7 +1,12 @@
 %!TEX root = ../report.tex
 \section{Implementation}
-The solution that has been proposed in the previous section is implemented using the C++ programming language in combination with CG as shading language.
+The solution that has been proposed in the previous section is implemented using the C++ programming language in combination with the OpenGL API.
+To program on the GPU, CG is used as shading language.
+
 The actual SPH fluid simulation is given and can be seen in figure \ref{fig:sph}, by implementing the multiple passes described in the previous section, a nature like fluid is expected.
+By creating Frame Buffer Objects (FBO), the results can be written to an off-screen rendering target.
+This is useful since we are using multiple passes.
+Also, multiple buffers can be attached to the FBO.
 
 \subsection{Depth determination}
 % TODO: Rephrase?
@@ -21,6 +26,7 @@ The fragment shader uses this input to determine the depth at every fragment.
 To determine this depth, the splat is rendered as a sphere by discarding fragments that fall outside the sphere.
 From this, the normal from the center of the sphere towards its surface is determined by taking the difference of the current fragment position and the current particle center.
 Using this normal, the point is transformed to clip space, the $z$ value of this position is the depth value.
+The depth values are then written to the depth buffer of the current FBO.
 
 The depth component of each fragment can be visualized as grey value by setting the R, G and B components to the depth value.
 The results of this visualization can be seen in figure \ref{fig:depth}.
