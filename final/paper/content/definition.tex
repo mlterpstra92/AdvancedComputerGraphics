@@ -20,6 +20,20 @@ It is our goal to create a nature-like rendering of fluids that can be rendered 
 It is also desirable to make sure that the rendering can be customized according to the requirements of users.
 For example, fluids can have different kind of thicknesses, or the quality of the rendering can be altered in order to keep the rendering in real-time.
 
+It is also import to distinct what makes a rendering realistic and in real-time. 
+We define real-time to be a simulation that is smooth, stutter-free and runs in about the same as the real world.
+In practice, this is not always feasible and therefore we define a simulation to be real-time if it produces at least 20 frames per second.
+
+A nature-like visualization of a fluid is a tangible concept as humans have a clear vision of what is a realistic visualization and what is not, but it is not quite as easy to formally define.
+
+There are several components that contribute to a realistic visualization of a fluid.
+In order to be realistic a fluid surface needs to be smooth. That is, there are no sharp discontinuities between particles.
+
+Moreover, the surface needs to be imperfect. This may sound counterintuitive as it contradicts with the point that a surface needs to be smooth, but it turns out that in nature a fluid surface is rarely perfectly smooth due to wind and other natural effects.
+
+Finally, a fluid should also act as a fluid in a simulation. This means that object attributes as color should be attenuated as that object is submerged in the fluid and the fluid should produce foam if it is mixed with gases in large quantities. Also, the color of the fluid should change depending on the speed of the fluid.
+
+The combinations of these components are what can make a fluid surface visualization realistic and it these components we seek.
 \subsection{Related work}
 Various methods are developed that try to achieve a nature-like rendering of fluid.
 Some of these techniques require to use a mesh, which is not desirable.
