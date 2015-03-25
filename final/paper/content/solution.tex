@@ -47,12 +47,16 @@ Now that we have an unit normal we can define mean curvature as \[2H = \frac{\pa
 These values can be calculated fairly easy and can thus be used to modify the \(z\)-values in the visualization easily and fast using Euler integration in time.
 
 \subsection{Thickness}
+The thickness of a fluid is important because an object behind the fluid should change color according to the amount of fluid in front of it.
+This means that the distance from the camera towards the first opaque object has to be determined for each fragment.
 
 \subsection{Noise}
 In order to remove the appearance of an artificially smooth surface, noise has to be added.
 Since the simulation has moving particles in it, the noise has to advect with those particles.
 \cite{van2009screen} suggests to use Perlin noise \cite{perlin1985image}.
-One octave of noise is added to each projected particle, this makes sure that the noise moves along with the fluid flow. 
+One octave of noise is added to each projected particle, this makes sure that the noise moves along with the fluid flow.
+
+Also, foam can be added to the fluid by adding grey according to the magnitude of the noise.
 
 \subsection{Rendering}
 Finally, all intermediate results are merged together in a final texture that is rendered as full-screen quad.
