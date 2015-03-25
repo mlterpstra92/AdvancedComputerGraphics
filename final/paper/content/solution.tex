@@ -7,8 +7,18 @@ According to the paper, they want to create:
 \begin{enumerate}
 	\item \label{en:item1} Achieves real-time performance, with a configurable speed versus quality trade-off.
 	\item \label{en:item2} Does all the processing, rendering and shading steps directly on the graphics hardware.
-	\item \label{en:item3} Smoothes the surface to prevent the fluid from looking blobby or jelly-like.
-	\item \label{en:item4} Is not based on polygonization, and thus does not suffer from the associated tesellation artifacts.
+	\item \label{en:item3} Smooths the surface to prevent the fluid from looking blobby or jelly-like.
+	\item \label{en:item4} Is not based on polygonization, and thus does not suffer from the associated tessellation artifacts.
 \end{enumerate}
 
-Items \ref{en:item1} and \ref{en:item3} have a direct connection with our goals and items \ref{en:item2} and \ref{en:item4} are ways to enable these goals.-
+Items \ref{en:item1} and \ref{en:item3} have a direct connection with our goals and items \ref{en:item2} and \ref{en:item4} are ways to enable these goals.
+
+The method described in the paper consists of multiple passes. It assumes that there is a functional SPH simulation where each fluid particle has a density. Then each frame the following steps are performed:
+\begin{itemize}
+	\item Splat points as spheres and determine depth values per fragment
+	\item Smooth the spheres based on curvature flow
+	\item Attenuate colors based on thickness
+	\item Add noise texture and advect throughout the simulation
+	\item Add foam
+	\item Render using Fresnel and Phong equations
+\end{itemize}
