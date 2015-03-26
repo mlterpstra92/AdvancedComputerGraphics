@@ -16,6 +16,7 @@ public:
 
 	CGprogram depthVertexProgram = NULL;
 	CGprogram depthFragmentProgram = NULL;
+	CGprogram smoothFragmentProgram = NULL;
 	CGprogram textureProgram = NULL;
 
 	CGparameter getNamedParameter( CGprogram program, const char * name );

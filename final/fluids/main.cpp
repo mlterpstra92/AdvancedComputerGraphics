@@ -60,6 +60,12 @@ void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar
     glFrustum( view_left, view_right, view_bottom, view_top, zNear, zFar );
 }
 
+float focalLength(float fovy, float size)
+{
+    // Calculate focal length from fovy
+    return (size / 2.0) / (tan(fovy / 2.0));
+}
+
 void setdepthShaderParams()
 {
     // Bind variables to shaders
@@ -76,11 +82,19 @@ void setdepthShaderParams()
     float radius = (sim.fluids[0]->particles.size() != 0) ? sim.fluids[0]->particles[0].renderRadius() : 0;
     cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "point_radius"), radius);
     
-    // Fragment shaders
+    // depth Fragment shader
     cgGLSetStateMatrixParameter(
         cgGetNamedParameter(shader.depthFragmentProgram, "projection_mat"), 
         CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetParameter1f(cgGetNamedParameter(shader.depthFragmentProgram, "point_radius"), radius);
+    
+    // smooth Fragment shader
+    // Cross components of determining normal (from the paper)
+    float Cx = 2.0 / (w_width * focalLength(fovy, w_width));
+    float Cy = 2.0 / (w_height * focalLength(fovy, w_height));
+    cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "C"), Cx, Cy);
+
+
 }
 
 void surfaceDepthPass()
@@ -94,7 +108,18 @@ void surfaceDepthPass()
 
 void surfaceSmoothPass()
 {
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"), vis.depth_tex);
+    cgGLEnableTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"));
 
+    // cgGLDisableProfile(shader.vertexProfile);
+    cgGLBindProgram(shader.smoothFragmentProgram);
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glDisable(GL_DEPTH_TEST);
+    vis.renderParticles();
+    glDepthMask(GL_TRUE);
+    cgGLDisableProfile(shader.vertexProfile);
+    cgGLDisableProfile(shader.fragmentProfile);
 }
 
 void drawTextureToScreen()
@@ -168,15 +193,15 @@ void display(void)
     surfaceDepthPass();
 
     // for(int i = 0; i < vis.smoothSteps; ++i)
-    //     surfaceSmoothPass();
+        surfaceSmoothPass();
 
-    glEnable(GL_BLEND);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
-    glDisable(GL_DEPTH_TEST);
-    vis.renderParticles();
-    glDepthMask(GL_TRUE);
-    cgGLDisableProfile(shader.vertexProfile);
-    cgGLDisableProfile(shader.fragmentProfile);
+    // glEnable(GL_BLEND);
+    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    // glDisable(GL_DEPTH_TEST);
+    // vis.renderParticles();
+    // glDepthMask(GL_TRUE);
+    // cgGLDisableProfile(shader.vertexProfile);
+    // cgGLDisableProfile(shader.fragmentProfile);
 
     drawTextureToScreen();
 
