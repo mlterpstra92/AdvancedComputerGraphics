@@ -42,3 +42,16 @@ It can be observed that the particles become darker when they appear  closer to 
 \vspace*{2ex}
 \hrule
 \end{figure}
+
+\subsection{Surface smoothing}
+Surface smoothing is implemented using fragment shader.
+First, the normal at each fragment has to be determined.
+Using the normals, the curvature has to be calculated, and this needs to be smoothed.
+
+\subsubsection{Normal calculation}
+The depth buffer is passed as input to the fragment shader, along with the uniform variables $C_x$ and $C_y$.
+Since the depth buffer is in a texture, we can obtain the depth values of neighbours.
+Using these neighbours, the finite differences between depth values can be calculated.
+Since we now have $C_x, C_y, \frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}$ and $z$, we can calculate the normal according to equation \ref{eq:normals}.
+
+\subsection{Normal smoothing}

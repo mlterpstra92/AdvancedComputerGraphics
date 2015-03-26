@@ -60,10 +60,12 @@ void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar
     glFrustum( view_left, view_right, view_bottom, view_top, zNear, zFar );
 }
 
-float focalLength(float fovy, float size)
+float calulateC(float fovy, float size)
 {
     // Calculate focal length from fovy
-    return (size / 2.0) / (tan(fovy / 2.0));
+    float focal_length = (size / 2.0) / (tan(fovy / 2.0));
+    // Calculate C according to Paper
+    return 2.0 / (size * focal_length);
 }
 
 void setdepthShaderParams()
@@ -90,8 +92,8 @@ void setdepthShaderParams()
     
     // smooth Fragment shader
     // Cross components of determining normal (from the paper)
-    float Cx = 2.0 / (w_width * focalLength(fovy, w_width));
-    float Cy = 2.0 / (w_height * focalLength(fovy, w_height));
+    float Cx = calulateC(fovy, w_width);
+    float Cy = calulateC(fovy, w_height);
     cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "C"), Cx, Cy);
 
 
