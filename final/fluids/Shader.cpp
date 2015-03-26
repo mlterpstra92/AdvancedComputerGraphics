@@ -47,6 +47,7 @@ void Shader::loadCgPrograms()
     /* Load all Cg programs that are used with loadCgProgram */
     depthVertexProgram = loadCgProgram(vertexProfile, "depthVertexProgram.cg");
     depthFragmentProgram = loadCgProgram(fragmentProfile, "depthFragmentProgram.cg");
+    normalFragmentProgram = loadCgProgram(fragmentProfile, "normalFragmentProgram.cg");
     smoothFragmentProgram = loadCgProgram(fragmentProfile, "smoothFragmentProgram.cg");
     textureProgram = loadCgProgram(fragmentProfile, "textureProgram.cg");
 }

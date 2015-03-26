@@ -92,7 +92,7 @@ void setdepthShaderParams()
     // Cross components of determining normal (from the paper)
     float Cx = 2.0 / (w_width * focalLength(fovy, w_width));
     float Cy = 2.0 / (w_height * focalLength(fovy, w_height));
-    cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "C"), Cx, Cy);
+    cgGLSetParameter2f(cgGetNamedParameter(shader.normalFragmentProgram, "C"), Cx, Cy);
 
 
 }
@@ -108,11 +108,11 @@ void surfaceDepthPass()
 
 void surfaceSmoothPass()
 {
-    cgGLSetTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"), vis.depth_tex);
-    cgGLEnableTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"));
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.normalFragmentProgram,"depth_values"), vis.depth_tex);
+    cgGLEnableTextureParameter(cgGetNamedParameter(shader.normalFragmentProgram,"depth_values"));
 
     // cgGLDisableProfile(shader.vertexProfile);
-    cgGLBindProgram(shader.smoothFragmentProgram);
+    cgGLBindProgram(shader.normalFragmentProgram);
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
     glDisable(GL_DEPTH_TEST);
