@@ -160,13 +160,16 @@ void display(void)
 
     surfaceDepthPass();
 
-    glEnable(GL_BLEND);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
-    glDisable(GL_DEPTH_TEST);
-    vis.renderParticles();
-    glDepthMask(GL_TRUE);
-    cgGLDisableProfile(shader.vertexProfile);
-    cgGLDisableProfile(shader.fragmentProfile);
+    for(int i = 0; i < vis.smoothSteps; ++i)
+        smoothPass();
+
+    // glEnable(GL_BLEND);
+    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    // glDisable(GL_DEPTH_TEST);
+    // vis.renderParticles();
+    // glDepthMask(GL_TRUE);
+    // cgGLDisableProfile(shader.vertexProfile);
+    // cgGLDisableProfile(shader.fragmentProfile);
 
     drawTextureToScreen();
 

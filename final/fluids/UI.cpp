@@ -21,6 +21,7 @@ void UI::initialise(int mainWindow)
 	glui->add_checkbox_to_panel(options_panel, "Sliding wall", &sim.slidingWall, 0, updateSlidingWall);
 	glui->add_checkbox_to_panel(options_panel, "Dynamic gravity", &sim.dynamicGravity);
 	glui->add_checkbox_to_panel(options_panel, "Freeze Simulation", &sim.frozen);
+	glui->add_spinner_to_panel (options_panel, "Smooth steps", GLUI_SPINNER_INT, &vis.smoothSteps);
 	// exit
 	glui->add_button("Quit", 0, exit);
 

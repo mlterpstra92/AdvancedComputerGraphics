@@ -22,6 +22,7 @@ public:
 	float zoomFactor;
 	int oldX, oldY;
 	bool isRotating;
+	int smoothSteps;
 
 	float baseX;
 	float baseY;
