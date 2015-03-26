@@ -6,21 +6,19 @@ void main(
     uniform float near,
     uniform float top,
     uniform float bottom,
-    uniform float radius,
+    uniform float point_radius,
 
     out float4 out_pos : POSITION,
     out float psize : PSIZE,
     out float2 pscreen : TEXCOORD0,
     out float sphereRadius : TEXCOORD1,
-    out float4 eye_pos : TEXCOORD2,
-    out float point_radius : TEXCOORD3
+    out float4 eye_pos : TEXCOORD2
 )
 {
     eye_pos = mul(modelView, pos);
     out_pos = mul(modelViewProj, pos);
     // Determine the particle center position in screen space
     pscreen = 0.5 * ((out_pos.xy / out_pos.w) + 1.0) * wsize;
-    psize = 2.0 * radius * (-near / eye_pos.z) * (wsize.y / (top - bottom));
-    point_radius = radius;
+    psize = 2.0 * point_radius * (-near / eye_pos.z) * (wsize.y / (top - bottom));
     sphereRadius = psize / 2.0;
 }

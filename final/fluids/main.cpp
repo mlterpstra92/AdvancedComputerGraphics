@@ -69,15 +69,18 @@ void setdepthShaderParams()
     cgGLSetStateMatrixParameter(
         cgGetNamedParameter(shader.depthVertexProgram, "modelView"), 
         CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
-    cgGLSetStateMatrixParameter(
-        cgGetNamedParameter(shader.depthFragmentProgram, "projection_mat"), 
-        CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetParameter2f(cgGetNamedParameter(shader.depthVertexProgram, "wsize"), w_width, w_height);
     cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "near"), view_near);
     cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "top"), view_top);
     cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "bottom"), view_bottom);
     float radius = (sim.fluids[0]->particles.size() != 0) ? sim.fluids[0]->particles[0].renderRadius() : 0;
-    cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "radius"), radius);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.depthVertexProgram, "point_radius"), radius);
+    
+    // Fragment shaders
+    cgGLSetStateMatrixParameter(
+        cgGetNamedParameter(shader.depthFragmentProgram, "projection_mat"), 
+        CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.depthFragmentProgram, "point_radius"), radius);
 }
 
 void surfaceDepthPass()
@@ -89,6 +92,10 @@ void surfaceDepthPass()
     glDepthMask(GL_FALSE);
 }
 
+void surfaceSmoothPass()
+{
+
+}
 
 void drawTextureToScreen()
 {
@@ -160,16 +167,16 @@ void display(void)
 
     surfaceDepthPass();
 
-    for(int i = 0; i < vis.smoothSteps; ++i)
-        smoothPass();
+    // for(int i = 0; i < vis.smoothSteps; ++i)
+    //     surfaceSmoothPass();
 
-    // glEnable(GL_BLEND);
-    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
-    // glDisable(GL_DEPTH_TEST);
-    // vis.renderParticles();
-    // glDepthMask(GL_TRUE);
-    // cgGLDisableProfile(shader.vertexProfile);
-    // cgGLDisableProfile(shader.fragmentProfile);
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glDisable(GL_DEPTH_TEST);
+    vis.renderParticles();
+    glDepthMask(GL_TRUE);
+    cgGLDisableProfile(shader.vertexProfile);
+    cgGLDisableProfile(shader.fragmentProfile);
 
     drawTextureToScreen();
 
