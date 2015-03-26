@@ -192,7 +192,7 @@ void display(void)
 
     surfaceDepthPass();
 
-    // for(int i = 0; i < vis.smoothSteps; ++i)
+    for(int i = 0; i < vis.smoothSteps; ++i)
         surfaceSmoothPass();
 
     // glEnable(GL_BLEND);
