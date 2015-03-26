@@ -7,8 +7,8 @@ void main(
 	uniform float4x4 projection_mat,
 	uniform float point_radius,
 
-	out float depth_out : DEPTH
-	// out float4 col  : COLOR
+	out float depth_out : DEPTH,
+	out float4 col  : COLOR
 	)
 {
 	//squared distance between particle point in screen space and fragment position
@@ -29,6 +29,6 @@ void main(
 	// Convert to homogeneous device coordinates
 	depth_out = clipPos.z / clipPos.w;
 	// Emit color as Prussian Blue
-    // col = float4(0.0, 0.49, 0.83, .25);
+    col = float4(0.0, 0.49, 0.83, .25);
     // col = float4(depth_out, depth_out, depth_out, 1.00);
 }

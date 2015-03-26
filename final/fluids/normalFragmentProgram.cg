@@ -43,8 +43,7 @@ void main(
 	uniform float2 C,
 	uniform sampler2D depth_values,
 
-	out float depth : DEPTH,
-	out float4 col : COLOR
+	out float depth : DEPTH
 	)
 {
 	float4 depth_fetch = tex2Dfetch(depth_values, int4(wpos,0,0));
@@ -72,5 +71,4 @@ void main(
 	float normal_y_derivative = normal_top.y - normal_bottom.y;
 
 	depth = depth + ((normal_x_derivative + normal_y_derivative) / 2.0);
-	col = float4(0.0, 0.49, 0.83, .25);
 }

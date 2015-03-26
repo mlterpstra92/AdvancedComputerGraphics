@@ -95,6 +95,8 @@ void setdepthShaderParams()
     float Cx = calulateC(fovy, w_width);
     float Cy = calulateC(fovy, w_height);
     cgGLSetParameter2f(cgGetNamedParameter(shader.normalFragmentProgram, "C"), Cx, Cy);
+    // cgGLSetTextureParameter(cgGetNamedParameter(shader.normalFragmentProgram,"depth_values"), vis.depth_tex);
+    // cgGLEnableTextureParameter(cgGetNamedParameter(shader.normalFragmentProgram,"depth_values"));
 }
 
 void surfaceDepthPass()
@@ -106,20 +108,39 @@ void surfaceDepthPass()
     glDepthMask(GL_FALSE);
 }
 
+void thicknessPass()
+{
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    vis.renderParticles();
+    glDisable(GL_BLEND);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+}
+
 void surfaceSmoothPass()
 {
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, vis.depth_tex);
+    cgGLBindProgram(shader.normalFragmentProgram);
     cgGLSetTextureParameter(cgGetNamedParameter(shader.normalFragmentProgram,"depth_values"), vis.depth_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.normalFragmentProgram,"depth_values"));
 
-    // cgGLDisableProfile(shader.vertexProfile);
-    cgGLBindProgram(shader.normalFragmentProgram);
-    glEnable(GL_BLEND);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    // // cgGLDisableProfile(shader.vertexProfile);
+    glColorMask(GL_FALSE,GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_TRUE);
     glDisable(GL_DEPTH_TEST);
     vis.renderParticles();
-    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+    
     cgGLDisableProfile(shader.vertexProfile);
     cgGLDisableProfile(shader.fragmentProfile);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
 }
 
 void drawTextureToScreen()
@@ -128,7 +149,6 @@ void drawTextureToScreen()
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     cgGLEnableProfile(shader.fragmentProfile);
     cgGLBindProgram(shader.textureProgram);
-
     cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"), vis.color_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"));
 
@@ -191,9 +211,16 @@ void display(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     surfaceDepthPass();
-
+    thicknessPass();
     for(int i = 0; i < vis.smoothSteps; ++i)
+    {
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, vis.alternate_depth_tex, 0);
         surfaceSmoothPass();
+        GLuint temp = vis.depth_tex;
+        vis.depth_tex = vis.alternate_depth_tex;
+        vis.alternate_depth_tex = temp;
+    }
+
 
     // glEnable(GL_BLEND);
     // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
