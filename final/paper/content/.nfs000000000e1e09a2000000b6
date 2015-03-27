@@ -35,7 +35,7 @@ It can be observed that the particles become darker when they appear  closer to 
 \begin{figure}[!th]
 \hrule
 \begin{center}
-\vspace*{2ex}\includegraphics[width=0.48\textwidth,clip=true,trim=10cm 3cm 10cm 3cm]{pictures/depth.png}
+\vspace*{2ex}\includegraphics[width=0.48\textwidth]{pictures/depth.png}
 \end{center}
 \caption{Depth component visualization}
 \label{fig:depth} 
@@ -74,34 +74,7 @@ Since the depth buffer is in a texture, we can obtain the depth values of neighb
 Using these neighbours, the finite differences between depth values can be calculated in the $x$ and $y$ direction.
 Since we now have $C_x, C_y, \frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}$ and $z$, we can calculate the normal according to equation \ref{eq:normals}.
 These normals are written to the normals texture.
-A visualization of the normals, done by assigning the normal to the color output, can be seen in figure~\ref{fig:normals}. 
-
-\begin{figure}[!th]
-\hrule
-\begin{center}
-\vspace*{2ex}\includegraphics[width=0.48\textwidth]{pictures/normal_mapping.png}
-\end{center}
-\caption{Visualization of the normals}
-\label{fig:normals} 
-\vspace*{2ex}
-\hrule
-\end{figure}
 
 \subsubsection{Depth smoothing}
 Since we now have all surface normals in a texture, finite differencing can be used again to calculate the derivatives of the surface normals.
 The depth values are modified according to these derivatives and written to the depth texture.
-
-\subsection{Rendering}
-For the final rendering phase we implemented a fragment shader that produces a color for each fragment, which only has a depth component.
-We have a default color for water that is modified according to its surroundings based on shading. 
-The end-results are projected onto a full-screen quad, which is the best option due to our framebuffer-objects.
-
-The paper suggests to implement a combination of Phong shading and the Fresnel equations shading for displaying the surface. 
-
-Phong shading works by linearly interpolating the normals from the vertices across a surface\cite{phong1975illumination}. 
-This results in a smooth surface of an object with correct specular highlights, as opposed to Gouraud shading which is not smooth and may not render specular highlights.
-
-The Fresnel equations describe the the behaviour of light when it moves between media with different refractive indices. 
-This helps visualizing water in a realistic way because the rendering can take refraction and reflection of a fluid surface into account in a realistic way.
-
-Normally, computing the Fresnel equations would be a costly and difficult operation. To circumvent this, we have applied Schlick's approximation to determine the reflective Fresnel component.
