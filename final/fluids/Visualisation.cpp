@@ -72,11 +72,15 @@ void Visualisation::setupFBOs(int w_width, int w_height)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    // Attach textures to FBO
+    // Attach textures to FBOs
     glGenFramebuffersEXT(1, &fbo);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, color_tex, 0);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_tex, 0);
+
+    glGenFramebuffersEXT(1, &smooth_fbo);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, smooth_fbo);
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, alternate_depth_tex, 0);
 
     assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);

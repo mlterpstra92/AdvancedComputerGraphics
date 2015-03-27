@@ -214,6 +214,8 @@ void display(void)
     surfaceDepthPass();
     // Write colors to color_tex
     thicknessPass();
+    
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, vis.smooth_fbo);
     // Smooth the depth values in the depth buffer.
     for(int i = 0; i < vis.smoothSteps; ++i)
     {
