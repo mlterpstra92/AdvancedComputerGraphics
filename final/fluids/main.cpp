@@ -97,6 +97,15 @@ void setdepthShaderParams()
     cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "C"), Cx, Cy);
 
     cgGLSetParameter2f(cgGetNamedParameter(shader.normalFragmentProgram, "C"), Cx, Cy);
+    cgGLSetParameter2f(cgGetNamedParameter(shader.textureProgram, "window_size"), w_width, w_height);
+
+    cgGLSetStateMatrixParameter(
+        cgGetNamedParameter(shader.textureProgram, "modelview_matrix"), 
+        CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
+    cgGLSetStateMatrixParameter(
+        cgGetNamedParameter(shader.textureProgram, "proj_matrix"), 
+        CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
+
 }
 
 void surfaceDepthPass()
@@ -145,6 +154,9 @@ void normalDetermination()
     cgGLSetTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"), vis.depth_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"));
     
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"normal_values"), vis.normal_tex);
+    cgGLEnableTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"normal_values"));
+
     drawFullScreenQuad();
 }
 
@@ -170,16 +182,16 @@ void drawTextureToScreen()
     // cgGLEnableProfile(shader.fragmentProfile);
     cgGLBindProgram(shader.textureProgram);
 
-    // Pass the color and depth textures to the shader
-    // cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"), vis.color_tex);
-    // cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"));
-
     // DEBUG draw normals
-    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"), vis.normal_tex);
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"), vis.color_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"));
 
     cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"depthin"), vis.depth_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"depthin"));
+
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"normals"), vis.normal_tex);
+    cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"normals"));
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     drawFullScreenQuad();
@@ -218,8 +230,8 @@ void display(void)
 
     // Bind fbo
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, vis.fbo);
-    GLenum bufs[3] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_DEPTH_ATTACHMENT_EXT};
-    glDrawBuffers(3, bufs);
+    GLenum bufs[2] = {GL_COLOR_ATTACHMENT0_EXT, GL_DEPTH_ATTACHMENT_EXT};
+    glDrawBuffers(2, bufs);
 
     // Clear FBO
     glClearColor(0, 0, 0, 1e-6);
@@ -235,26 +247,26 @@ void display(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     normalDetermination();
 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, vis.smooth_fbo);
+    //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, vis.smooth_fbo);
 
     // Smooth the depth values in the depth buffer.
-    for(int i = 0; i < (vis.smoothSteps / 2 * 2); ++i)
-    {
-        // Bind second depth texture to FBO
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, vis.alternate_depth_tex, 0);
-        // Smooth the depth values 
-        surfaceSmoothPass();
-        // Flip the depth buffers
-        GLuint temp = vis.depth_tex;
-        vis.depth_tex = vis.alternate_depth_tex;
-        vis.alternate_depth_tex = temp;
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, vis.alternate_normal_tex, 0);
-        normalDetermination();
-        // Flip the normal textures
-        temp = vis.normal_tex;
-        vis.normal_tex = vis.alternate_normal_tex;
-        vis.alternate_normal_tex = temp;
-    }
+    // for(int i = 0; i < (vis.smoothSteps / 2 * 2); ++i)
+    // {
+    //     // Bind second depth texture to FBO
+    //     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, vis.alternate_depth_tex, 0);
+    //     // Smooth the depth values 
+    //     surfaceSmoothPass();
+    //     // Flip the depth buffers
+    //     GLuint temp = vis.depth_tex;
+    //     vis.depth_tex = vis.alternate_depth_tex;
+    //     vis.alternate_depth_tex = temp;
+    //     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, vis.alternate_normal_tex, 0);
+    //     normalDetermination();
+    //     // Flip the normal textures
+    //     temp = vis.normal_tex;
+    //     vis.normal_tex = vis.alternate_normal_tex;
+    //     vis.alternate_normal_tex = temp;
+    // }
 
     // draw intermediate textures to full screen quad on screen
     drawTextureToScreen();

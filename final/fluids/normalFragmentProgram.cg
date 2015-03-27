@@ -1,7 +1,7 @@
 float2 derivative(uniform sampler2D depth_values, float2 wpos)
 {
-	float x_derivate = tex2Dfetch(depth_values, int4(wpos.x + 1, wpos.y,0,0)) - tex2Dfetch(depth_values, int4(wpos.x - 1, wpos.y,0,0));
-	float y_derivate = tex2Dfetch(depth_values, int4(wpos.x, wpos.y + 1,0,0)) - tex2Dfetch(depth_values, int4(wpos.x, wpos.y - 1,0,0));
+	float x_derivate = tex2Dfetch(depth_values, int4(wpos.x + 10, wpos.y,0,0)) - tex2Dfetch(depth_values, int4(wpos.x - 10, wpos.y,0,0));
+	float y_derivate = tex2Dfetch(depth_values, int4(wpos.x, wpos.y + 10,0,0)) - tex2Dfetch(depth_values, int4(wpos.x, wpos.y - 10,0,0));
 	return float2 (x_derivate, y_derivate);
 }
 void main(

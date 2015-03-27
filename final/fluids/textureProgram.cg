@@ -1,19 +1,60 @@
 void main(
     int2 wpos : WPOS,
-    
     uniform sampler2D colorin,
     uniform sampler2D depthin,
+    uniform sampler2D normals,
+    uniform float4x4 modelview_matrix,
+    uniform float4x4 proj_matrix,
+    uniform float2 window_size,
 
     out float4 colorout : COLOR
     )
 {
     // Extract the parameters we passed in the render targets
-    float4 color = tex2Dfetch(colorin, int4(wpos,0,0));
-    float4 depth = tex2Dfetch(depthin, int4(wpos,0,0));
+    float4 color  = tex2Dfetch(colorin, int4(wpos,0,0));
+    float depth  = tex2Dfetch(depthin, int4(wpos,0,0)).x;
+    float3 normal = tex2Dfetch(normals, int4(wpos,0,0)).xyz;
     float3 normalizedColor = color.rgb / color.a;
-    colorout = float4(normalizedColor, 1.0);
-    // colorout = -color;
-    // colorout = float4(depth.x, depth.x, depth.x, 1);
+    float shininess = 50.0;
+
+    if (depth >= 1)
+        discard;
+
+    const float3 lightdir = float3(0, 1, 2);
+    const float3 eye_loc = float3(0,0,1);
+    const float4 b = float4(1.0);
+
+    // Calculate position in eye space
+    float3 p_eye = mul(modelview_matrix, float4(wpos, depth, 0.0)).xyz;
+
+    // eye location position in eye space
+    float3 eye_eye = mul(modelview_matrix, float4(eye_loc, 0.0)).xyz;
+
+    // view vector
+    float3 viewdir = normalize(eye_eye - p_eye);
+
+    // Phong lighting model 
+    float NV = dot(normal, viewdir);
+
+    float3 halfvec = normalize(lightdir + viewdir);
+    float NH = dot(normal, halfvec);
+
+
+    float diffuse = max(dot(normal, lightdir), 0.0);
+
+    // Phong specular component
+    float specular = pow(max(NH, 0.0), shininess);
+    
+    // Refraction indices for air and water
+    float air_refraction = 1.0;
+    float water_refraction = 1.3333;
+
+    // Schlick's approximation. Approximates the fresnel equation for refraction and reflection
+    float r0 = pow((air_refraction - water_refraction) / (air_refraction + water_refraction), 2);
+    float schlick = (r0 + ((1-r0)*pow((1 - (abs(NV))), 5)));
+
+    // Final color
+    colorout = float4(diffuse * normalizedColor + schlick + specular, 1.0);
 }
 
 
