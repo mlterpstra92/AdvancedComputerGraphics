@@ -60,3 +60,18 @@ Using these neighbours, the finite differences between depth values can be calcu
 Since we now have $C_x, C_y, \frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}$ and $z$, we can calculate the normal according to equation \ref{eq:normals}.
 
 \subsection{Normal smoothing}
+
+\subsection{Rendering}
+For the final rendering phase we implemented a fragment shader that produces a color for each fragment, which only has a depth component.
+We have a default color for water that is modified according to its surroundings based on shading. 
+The end-results are projected onto a full-screen quad, which is the best option due to our framebuffer-objects.
+
+The paper suggests to implement a combination of Phong shading and the Fresnel equations shading for displaying the surface. 
+
+Phong shading works by linearly interpolating the normals from the vertices across a surface\cite{phong1975illumination}. 
+This results in a smooth surface of an object with correct specular highlights, as opposed to Gouraud shading which is not smooth and may not render specular highlights.
+
+The Fresnel equations describe the the behaviour of light when it moves between media with different refractive indices. 
+This helps visualizing water in a realistic way because the rendering can take refraction and reflection of a fluid surface into account in a realistic way.
+
+Normally, computing the Fresnel equations would be a costly and difficult operation. To circumvent this, we have applied Schlick's approximation to determine the reflective Fresnel component.
