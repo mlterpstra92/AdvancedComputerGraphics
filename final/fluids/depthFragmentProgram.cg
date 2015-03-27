@@ -8,7 +8,7 @@ void main(
 	uniform float point_radius,
 
 	out float depth_out : DEPTH,
-	out float4 col  : COLOR
+	out float4 col  : COLOR0
 	)
 {
 	//squared distance between particle point in screen space and fragment position

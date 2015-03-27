@@ -44,7 +44,12 @@ It can be observed that the particles become darker when they appear  closer to 
 \end{figure}
 
 \subsection{Surface smoothing}
-Surface smoothing is implemented using fragment shader.
+Surface smoothing is implemented using a fragment shader.
+Since the smoothing happens in multiple steps, two depth textures are needed.
+The shader smooths the depth values of the main depth texture and outputs them in the second alternate depth texture.
+Then the textures are flipped so the main depth texture has newly calculated values, this process repeats until the desired amount of smoothing steps is reached.
+
+% TODO: Fix dit
 First, the normal at each fragment has to be determined.
 Using the normals, the curvature has to be calculated, and this needs to be smoothed.
 
