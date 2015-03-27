@@ -44,19 +44,37 @@ It can be observed that the particles become darker when they appear  closer to 
 \end{figure}
 
 \subsection{Surface smoothing}
-Surface smoothing is implemented using a fragment shader.
-Since the smoothing happens in multiple steps, two depth textures are needed.
-The shader smooths the depth values of the main depth texture and outputs them in the second alternate depth texture.
-Then the textures are flipped so the main depth texture has newly calculated values, this process repeats until the desired amount of smoothing steps is reached.
+Two fragment shaders are used for surface smoothing.
+The first fragment shader calculates the surface normals from the depth values and writes them in a texture.
+The second fragment shader smooths the depth values using curvature flow, using the surface normals computed in the first shader.
+These smoothed depth values are also written to a texture.
 
-% TODO: Fix dit
-First, the normal at each fragment has to be determined.
-Using the normals, the curvature has to be calculated, and this needs to be smoothed.
+Since the smoothing happens in multiple steps, and textures can not be overwritten directly, multiple textures and FBOs are needed.
+The depth texture has to be updated, so an extra temporary depth texture is needed, the same holds for the surface normal texture.
+In each smooth step, one texture is used as input and the other is used as render target, the textures are switched after every step.
+The surface normals change when the depth values are changed, so these also need to be recomputed every smooth step.
+Listing \ref{program:smooth} shows this process in pseudocode.
+
+\begin{algorithm}
+	\begin{program}
+	\caption
+	|calculateNormals()|;
+	\FOR i:=1 \TO |smoothSteps| \DO
+		|smoothDepths()|;
+		|calculateNormals()|;
+		|flipTextures()|;
+	\end{program}
+	\label{program:smooth}
+	\caption{Surface smoothing pseudocode}
+\end{algorithm}
 
 \subsubsection{Normal calculation}
 The depth buffer is passed as input to the fragment shader, along with the uniform variables $C_x$ and $C_y$.
 Since the depth buffer is in a texture, we can obtain the depth values of neighbours.
-Using these neighbours, the finite differences between depth values can be calculated.
+Using these neighbours, the finite differences between depth values can be calculated in the $x$ and $y$ direction.
 Since we now have $C_x, C_y, \frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}$ and $z$, we can calculate the normal according to equation \ref{eq:normals}.
+These normals are written to the normals texture.
 
-\subsection{Normal smoothing}
+\subsubsection{Depth smoothing}
+Since we now have all surface normals in a texture, finite differencing can be used again to calculate the derivatives of the surface normals.
+The depth values are modified according to these derivatives and written to the depth texture.
