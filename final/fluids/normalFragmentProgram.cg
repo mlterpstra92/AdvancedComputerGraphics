@@ -1,3 +1,35 @@
+// float2 derivative(uniform sampler2D depth_values, float2 wpos)
+// {
+// 	float x_derivate = tex2Dfetch(depth_values, int4(wpos.x + 1, wpos.y,0,0))  - tex2Dfetch(depth_values, int4(wpos.x - 1, wpos.y,0,0));
+// 	float y_derivate = tex2Dfetch(depth_values, int4(wpos.x, wpos.y + 1,0,0))  - tex2Dfetch(depth_values, int4(wpos.x, wpos.y - 1,0,0));
+// 	return float2 (x_derivate, y_derivate);
+// }
+
+// void main(
+// 	float2 wpos : WPOS,
+
+// 	uniform float2 C,
+// 	uniform sampler2D depth_values,
+
+// 	out float4 normal_and_depth : COLOR
+// 	)
+// {
+// 	float4 depth_fetch = tex2Dfetch(depth_values, int4(wpos,0,0));
+// 	float depth = depth_fetch.x;
+// 	if (depth >= 1)
+// 	{
+// 		discard;
+// 	}
+// 	// Derive the depth values in both the x, and y direction
+// 	float2 derivatives = derivative(depth_values, wpos);
+// 	//Determine normal as in the paper using finite differencing
+// 	float3 normal = float3(-C.y * derivatives.x, -C.x * derivatives.y, C.x * C.y * depth); 
+// 	// Save the squared components as this may be useful for determining curvature
+// 	float D = dot(normal, normal);
+// 	// Normalize!
+// 	float3 norm_normal = normalize(normal);
+// 	normal_and_depth = float4(norm_normal, depth);
+// }
 float2 derivative(uniform sampler2D depth_values, float2 wpos)
 {
 	float x_derivate = tex2Dfetch(depth_values, int4(wpos.x + 1, wpos.y,0,0))  - tex2Dfetch(depth_values, int4(wpos.x - 1, wpos.y,0,0));
@@ -11,22 +43,32 @@ void main(
 	uniform float2 C,
 	uniform sampler2D depth_values,
 
-	out float4 normal_and_depth : COLOR
+	out float depth : DEPTH
 	)
 {
 	float4 depth_fetch = tex2Dfetch(depth_values, int4(wpos,0,0));
-	float depth = depth_fetch.x;
+	depth = depth_fetch.x;
 	if (depth >= 1)
 	{
 		discard;
 	}
 	// Derive the depth values in both the x, and y direction
 	float2 derivatives = derivative(depth_values, wpos);
+	float2 derivatives_right = derivative(depth_values, float2(wpos.x + 1, wpos.y));
+	float2 derivatives_left = derivative(depth_values, float2(wpos.x - 1, wpos.y));
+	float2 derivatives_top = derivative(depth_values, float2(wpos.x, wpos.y + 1));
+	float2 derivatives_bottom = derivative(depth_values, float2(wpos.x, wpos.y - 1));
+
 	//Determine normal as in the paper using finite differencing
-	float3 normal = float3(-C.y * derivatives.x, -C.x * derivatives.y, C.x * C.y * depth); 
-	// Save the squared components as this may be useful for determining curvature
-	float D = dot(normal, normal);
-	// Normalize!
-	float3 norm_normal = normalize(normal);
-	normal_and_depth = float4(norm_normal, depth);
+
+	float3 normal = normalize(float3(-C.y * derivatives.x, -C.x * derivatives.y, C.x * C.y * depth)); 
+	float3 normal_left = normalize(float3(-C.y * derivatives_left.x, -C.x * derivatives_left.y, C.x * C.y * tex2Dfetch(depth_values, int4(wpos.x - 1, wpos.y,0,0)))); 
+	float3 normal_right = normalize(float3(-C.y * derivatives_right.x, -C.x * derivatives_right.y, C.x * C.y * tex2Dfetch(depth_values, int4(wpos.x + 1, wpos.y,0,0)))); 
+	float3 normal_top = normalize(float3(-C.y * derivatives_top.x, -C.x * derivatives_top.y, C.x * C.y * tex2Dfetch(depth_values, int4(wpos.x, wpos.y + 1,0,0)))); 
+	float3 normal_bottom = normalize(float3(-C.y * derivatives_bottom.x, -C.x * derivatives_bottom.y, C.x * C.y * tex2Dfetch(depth_values, int4(wpos.x, wpos.y - 1,0,0)))); 
+
+	float normal_x_derivative = -C.y * derivatives_right.x - normal_left.x;
+	float normal_y_derivative = normal_top.y - normal_bottom.y;
+
+	depth = depth + ((normal_x_derivative + normal_y_derivative) / 2.0);
 }
