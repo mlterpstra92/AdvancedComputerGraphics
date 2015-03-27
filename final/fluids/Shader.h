@@ -16,7 +16,6 @@ public:
 
 	CGprogram depthVertexProgram = NULL;
 	CGprogram depthFragmentProgram = NULL;
-	CGprogram normalFragmentProgram = NULL;
 	CGprogram smoothFragmentProgram = NULL;
 	CGprogram textureProgram = NULL;
 
