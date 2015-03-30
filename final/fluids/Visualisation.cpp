@@ -43,32 +43,13 @@ void Visualisation::setupFBOs(int w_width, int w_height)
 {
     glDeleteFramebuffersEXT(1, &fbo);
     glDeleteFramebuffersEXT(1, &smooth_fbo);
-    glDeleteFramebuffersEXT(1, &normal_fbo);
     glDeleteTextures(1, &depth_tex);
     glDeleteTextures(1, &alternate_depth_tex);
     glDeleteTextures(1, &color_tex);
-    glDeleteTextures(1, &normal_tex);
-    glDeleteTextures(1, &alternate_normal_tex);
     
     // Color texture
     glGenTextures(1, &color_tex);
     glBindTexture(GL_TEXTURE_2D, color_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, w_width, w_height, 0, GL_RGBA, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // Normal texture
-    glGenTextures(1, &normal_tex);
-    glBindTexture(GL_TEXTURE_2D, normal_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, w_width, w_height, 0, GL_RGBA, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // Alternate Normal texture
-    glGenTextures(1, &alternate_normal_tex);
-    glBindTexture(GL_TEXTURE_2D, alternate_normal_tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, w_width, w_height, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -101,14 +82,9 @@ void Visualisation::setupFBOs(int w_width, int w_height)
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, color_tex, 0);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_tex, 0);
 
-    glGenFramebuffersEXT(1, &normal_fbo);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, normal_fbo);
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, normal_tex, 0);
-    
     glGenFramebuffersEXT(1, &smooth_fbo);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, smooth_fbo);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, alternate_depth_tex, 0);
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, alternate_normal_tex, 0);
 
 
     assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT);

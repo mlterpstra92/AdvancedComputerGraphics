@@ -1,31 +1,64 @@
-float2 derivative(uniform sampler2D normal_values, float2 wpos)
+float3 mean_curvature(float2 wpos, float depth, uniform sampler2D depth_values, uniform float2 C)
 {
-	float x_derivate = tex2Dfetch(normal_values, int4(wpos.x + 1, wpos.y,0,0)).x  - tex2Dfetch(normal_values, int4(wpos.x - 1, wpos.y,0,0)).x;
-	float y_derivate = tex2Dfetch(normal_values, int4(wpos.x, wpos.y + 1,0,0)).y  - tex2Dfetch(normal_values, int4(wpos.x, wpos.y - 1,0,0)).y;
-	return float2 (x_derivate, y_derivate);
+	// First order central differences
+	float depth_dxp = tex2Dfetch(depth_values, int4(wpos.x + 1, wpos.y,0,0)).x;
+	float depth_dxn = tex2Dfetch(depth_values, int4(wpos.x - 1, wpos.y,0,0)).x;
+	float depth_dyp = tex2Dfetch(depth_values, int4(wpos.x, wpos.y + 1,0,0)).x;
+	float depth_dyn = tex2Dfetch(depth_values, int4(wpos.x, wpos.y - 1,0,0)).x;
+	float depth_dx = (depth_dxp - depth_dxn) / 2.0;
+	float depth_dy = (depth_dyp - depth_dyn) / 2.0;
+	if (depth_dxp == 0 || depth_dxn == 0)
+	{
+		depth_dx = 0;
+	}
+	if (depth_dyp == 0 || depth_dyn == 0)
+	{
+		depth_dy = 0;
+	}
+
+	// Second order central differences
+	float depth_dx2 = depth_dxp + depth_dxn - (2 * depth);
+	float depth_dy2 = depth_dyp + depth_dyn - (2 * depth);
+	float depth_dxpyp = tex2Dfetch(depth_values, int4(wpos.x + 1, wpos.y + 1, 0, 0));
+	float depth_dxnyn = tex2Dfetch(depth_values, int4(wpos.x - 1, wpos.y - 1, 0, 0));
+	float depth_dxpyn = tex2Dfetch(depth_values, int4(wpos.x + 1, wpos.y - 1, 0, 0));
+	float depth_dxnyp = tex2Dfetch(depth_values, int4(wpos.x - 1, wpos.y + 1, 0, 0));
+	float depth_dxy	= (depth_dxpyp + depth_dxnyn - depth_dxpyn - depth_dxnyp) / 4.0;
+	// TODO: Misschien verkeerde C
+
+	// D from paper
+	float D = C.y * C.y * depth_dx * depth_dx + C.x * C.x * depth_dy * depth_dy + C.x * C.x * C.y * C.y * depth * depth;
+	float D_dx = C.y * C.y * 2.0 * depth_dx * depth_dx2 + C.x * C.x * 2.0 * depth_dy * depth_dxy + C.x * C.x * C.y * C.y * 2.0 * depth * depth_dx;
+	float D_dy = C.y * C.y * 2.0 * depth_dx * depth_dxy + C.x * C.x * 2.0 * depth_dy * depth_dy2 + C.x * C.x * C.y * C.y * 2.0 * depth * depth_dy;
+	float Ex = 0.5 * depth_dx * D_dx - depth_dx2 * D;
+	float Ey = 0.5 * depth_dy * D_dy - depth_dy2 * D;
+	// Finally, mean curvature
+	float h = 0.5 * ((C.y * Ex + C.x * Ey) / pow(D, 1.5f));
+	return(float3(depth_dx, depth_dy, h));
 }
 
-void main(
+float main(
+	// https://github.com/halcy/simpleflow/blob/master/WaterSim2/curvatureflow.frag
 	float2 wpos : WPOS,
 
 	uniform float2 C,
-	uniform sampler2D depth_values,
-	uniform sampler2D normal_values,
-
-	out float depth : DEPTH
+	uniform sampler2D depth_values
 	)
+	: DEPTH
 {
 	float4 depth_fetch = tex2Dfetch(depth_values, int4(wpos,0,0));
-	depth = depth_fetch.x;
+	float depth = depth_fetch.x;
 	if (depth >= 1)
 	{
 		discard;
 	}
-	
-	float2 derivatives = derivative(normal_values, wpos);
+	if (depth == 0)
+		return 0;
 
-	// TODO: HIER ZIT DE BUG???
-	// depth = depth + ((normal_x_derivative + normal_y_derivative) / 2.0);
-	// depth = depth - ((derivatives.x + derivatives.y) / 2.0);
-	depth = depth * 0.9;
+	float dt = 0.00055f;
+	float dzt = 1000.0f;
+
+	float3 curvature = mean_curvature(wpos, depth, depth_values, C);
+
+	return depth + curvature.z * dt * (1.0 + (abs(curvature.x) + abs(curvature.y)) * dzt);
 }

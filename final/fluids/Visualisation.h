@@ -27,7 +27,7 @@ public:
 	float baseX;
 	float baseY;
 	float baseZ;
-	GLuint fbo, smooth_fbo, normal_fbo, depth_tex, color_tex, normal_tex, alternate_normal_tex, alternate_depth_tex;
+	GLuint fbo, smooth_fbo, depth_tex, color_tex, alternate_depth_tex;
 };
 
 #endif
