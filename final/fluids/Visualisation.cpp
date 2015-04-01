@@ -19,7 +19,7 @@ Visualisation::Visualisation()
     oldX = 0;
     oldY = 0;
     isRotating = false;
-    smoothSteps = 16;
+    smoothSteps = 0;
 }
 
 void Visualisation::renderParticles()

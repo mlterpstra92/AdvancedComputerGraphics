@@ -25,8 +25,8 @@ float view_right = 1.0;
 float view_bottom = -1.0;
 float view_top = 1.0;
 
-float view_near = 1.0;
-float view_far = 50.0;
+float view_near = 0.5;
+float view_far = 100.0;
 
 float fovy = 60.0f;
 
@@ -34,9 +34,9 @@ float fovy = 60.0f;
 unsigned int w_width = 1280;
 unsigned int w_height = 720;
 
-const float eye[] = {0.0, 0.0, 1.0};
+const float eye[]    = { 0.0, 0.0, 1.0 };
 const float origin[] = { 0.0, 0.0, 0.0 };
-const float up[] =     { 0.0, 1.0, 0.0 };
+const float up[]     = { 0.0, 1.0, 0.0 };
 
 int mainWindow;
 Visualisation vis;
@@ -49,7 +49,7 @@ void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar
     const GLdouble pi = 3.1415926535897932384626433832795;
     GLdouble fW, fH;
 
-    fH = tan( fovY / 360 * pi ) * zNear;
+    fH = tan( fovY / 360.0 * pi ) * zNear;
     fW = fH * aspect;
     
     view_left = -fW;
@@ -90,21 +90,20 @@ void setdepthShaderParams()
         CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetParameter1f(cgGetNamedParameter(shader.depthFragmentProgram, "point_radius"), radius);
     
-    // smooth Fragment shader
-    // Cross components of determining normal (from the paper)
+    cgGLSetParameter2f(cgGetNamedParameter(shader.textureFragmentProgram, "window_size"), w_width, w_height);
     float Cx = calulateC(fovy, w_width);
     float Cy = calulateC(fovy, w_height);
-    cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "C"), Cx, Cy);
-    cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "window_size"), w_width, w_height);
 
-    cgGLSetParameter2f(cgGetNamedParameter(shader.textureProgram, "window_size"), w_width, w_height);
-
-    cgGLSetParameter2f(cgGetNamedParameter(shader.textureProgram, "C"), Cx, Cy);
+    cgGLSetParameter2f(cgGetNamedParameter(shader.textureFragmentProgram, "C"), Cx, Cy);
     cgGLSetStateMatrixParameter(
-        cgGetNamedParameter(shader.textureProgram, "modelview_matrix"), 
+        cgGetNamedParameter(shader.textureFragmentProgram, "modelview_matrix"), 
         CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
     cgGLSetStateMatrixParameter(
-        cgGetNamedParameter(shader.textureProgram, "proj_matrix"), 
+        cgGetNamedParameter(shader.textureFragmentProgram, "modelview_IT_matrix"), 
+        CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_INVERSE_TRANSPOSE);
+
+    cgGLSetStateMatrixParameter(
+        cgGetNamedParameter(shader.textureFragmentProgram, "proj_matrix"), 
         CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
 
 }
@@ -113,6 +112,7 @@ void surfaceDepthPass()
 {
     glColorMask(GL_FALSE,GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
     vis.renderParticles();
 }
 
@@ -139,10 +139,10 @@ void drawFullScreenQuad()
     glPushMatrix ();
     glLoadIdentity ();
     glBegin (GL_QUADS);
-    glVertex3i (-1, -1, -1);
-    glVertex3i (1, -1, -1);
-    glVertex3i (1, 1, -1);
-    glVertex3i (-1, 1, -1);
+    glVertex3i (-1, -1, 0);
+    glVertex3i (1, -1, 0);
+    glVertex3i (1, 1, 0);
+    glVertex3i (-1, 1, 0);
     glEnd ();
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
@@ -152,10 +152,23 @@ void drawFullScreenQuad()
 
 void surfaceSmoothPass()
 {
+    cgGLEnableProfile(shader.vertexProfile);
+    cgGLBindProgram(shader.smoothVertexProgram);
+    cgGLEnableProfile(shader.fragmentProfile);
     cgGLBindProgram(shader.smoothFragmentProgram);
     // Bind the depth values texture to CG
     cgGLSetTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"), vis.depth_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"));
+    // smooth Fragment shader
+    // Cross components of determining normal (from the paper)
+    float Cx = calulateC(fovy, w_width);
+    float Cy = calulateC(fovy, w_height);
+    cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "C"), Cx, Cy);
+    cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "window_size"), w_width, w_height);
+
+    cgGLSetStateMatrixParameter(
+        cgGetNamedParameter(shader.smoothFragmentProgram, "proj_matrix"), 
+        CG_GL_PROJECTION_MATRIX, CG_GL_MATRIX_IDENTITY);
 
     // Don't write color values to texture.
     glDrawBuffer(GL_NONE);
@@ -168,15 +181,17 @@ void surfaceSmoothPass()
 void drawTextureToScreen()
 {
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    // glDepthMask(GL_TRUE); // TODO: Not sure
-    // cgGLEnableProfile(shader.fragmentProfile);
-    cgGLBindProgram(shader.textureProgram);
+    glDepthMask(GL_TRUE); // TODO: Not sure
+    cgGLEnableProfile(shader.vertexProfile);
+    cgGLBindProgram(shader.textureVertexProgram);
+    cgGLEnableProfile(shader.fragmentProfile);
+    cgGLBindProgram(shader.textureFragmentProgram);
 
-    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"), vis.color_tex);
-    cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"colorin"));
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureFragmentProgram,"colorin"), vis.color_tex);
+    cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureFragmentProgram,"colorin"));
 
-    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureProgram,"depth_values"), vis.depth_tex);
-    cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureProgram,"depth_values"));
+    cgGLSetTextureParameter(cgGetNamedParameter(shader.textureFragmentProgram,"depth_values"), vis.depth_tex);
+    cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureFragmentProgram,"depth_values"));
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -188,6 +203,7 @@ void drawTextureToScreen()
 void display(void)
 {
     glEnable(GL_DEPTH_TEST);
+    glClearColor(1, 1, 1, 1e-6);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glMatrixMode(GL_PROJECTION);
@@ -220,7 +236,7 @@ void display(void)
     glDrawBuffers(2, bufs);
 
     // Clear FBO
-    glClearColor(0, 0, 0, 1e-6);
+    glClearColor(1, 1, 1, 1e-6);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Write depth values to initial depth buffer of fbo
@@ -228,12 +244,12 @@ void display(void)
     // Write colors to color_tex COLOR_ATTACHMENT0 of fbo
     thicknessPass();
 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, vis.smooth_fbo);
 
     // Smooth the depth values in the depth buffer.
-    for(int i = 0; i < (vis.smoothSteps / 2 * 2); ++i)
+    for(int i = 0; i < (vis.smoothSteps * 2); ++i)
     {
         // Bind second depth texture to FBO
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, vis.smooth_fbo);
         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, vis.alternate_depth_tex, 0);
         // Smooth the depth values 
         surfaceSmoothPass();

@@ -48,7 +48,9 @@ void Shader::loadCgPrograms()
     depthVertexProgram = loadCgProgram(vertexProfile, "depthVertexProgram.cg");
     depthFragmentProgram = loadCgProgram(fragmentProfile, "depthFragmentProgram.cg");
     smoothFragmentProgram = loadCgProgram(fragmentProfile, "smoothFragmentProgram.cg");
-    textureProgram = loadCgProgram(fragmentProfile, "textureProgram.cg");
+    smoothVertexProgram = loadCgProgram(vertexProfile, "smoothVertexProgram.cg");
+    textureVertexProgram = loadCgProgram(vertexProfile, "textureVertexProgram.cg");
+    textureFragmentProgram = loadCgProgram(fragmentProfile, "textureFragmentProgram.cg");
 }
 
 CGparameter Shader::getNamedParameter( CGprogram program, const char * name )

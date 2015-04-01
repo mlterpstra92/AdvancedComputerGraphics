@@ -21,7 +21,8 @@ void main(
 	}
 
 	// Set z component along the view direction
-	float3 normal = float3(normalize(diff), -sqrt(1.0 - dist_screen));
+	float3 normal = float3(normalize(diff), -sqrt(1.0 - dist_screen));	
+
 	// Splat it on the near plane in the direction of the normal
 	float4 pixelPos = float4(eye_pos.xyz - normal * point_radius, 1.0);
 	// Project the pixel to clip space
