@@ -23,6 +23,11 @@ void UI::initialise(int mainWindow)
 	glui->add_checkbox_to_panel(options_panel, "Freeze Simulation", &sim.frozen);
 	GLUI_Spinner *spinner = glui->add_spinner_to_panel (options_panel, "Smooth steps", GLUI_SPINNER_INT, &vis.smoothSteps);
 	spinner->set_int_limits(0, 32, GLUI_LIMIT_CLAMP);
+	GLUI_Listbox *listbox = glui->add_listbox_to_panel(options_panel, "Color method", &vis.method);
+	listbox->add_item(1, "Water");
+	listbox->add_item(2, "Depth");
+	listbox->add_item(3, "Normals");
+
 	// exit
 	glui->add_button("Quit", 0, exit);
 

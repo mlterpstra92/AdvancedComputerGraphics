@@ -23,6 +23,7 @@ public:
 	int oldX, oldY;
 	bool isRotating;
 	int smoothSteps;
+	int method;
 
 	float baseX;
 	float baseY;

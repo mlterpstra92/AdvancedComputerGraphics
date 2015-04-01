@@ -95,6 +95,7 @@ void setdepthShaderParams()
     float Cy = calulateC(fovy, w_height);
 
     cgGLSetParameter2f(cgGetNamedParameter(shader.textureFragmentProgram, "C"), Cx, Cy);
+    cgGLSetParameter1f(cgGetNamedParameter(shader.textureFragmentProgram, "method"), vis.method);
     cgGLSetStateMatrixParameter(
         cgGetNamedParameter(shader.textureFragmentProgram, "modelview_matrix"), 
         CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_IDENTITY);
