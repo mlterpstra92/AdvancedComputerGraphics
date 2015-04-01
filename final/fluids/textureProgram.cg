@@ -104,8 +104,8 @@ void main(
 
     // Final color
     // colorout = float4(diffuse * normalizedColor + schlick + specular, 1.0);
-    colorout = float4(normal, 1.0);
-    // colorout = float4(depth, depth, depth ,1);
+    // colorout = float4(normal, 1.0);
+    colorout = float4(depth, depth, depth ,1);
 }
 
 

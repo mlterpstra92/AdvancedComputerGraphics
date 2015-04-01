@@ -95,6 +95,7 @@ void setdepthShaderParams()
     float Cx = calulateC(fovy, w_width);
     float Cy = calulateC(fovy, w_height);
     cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "C"), Cx, Cy);
+    cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "window_size"), w_width, w_height);
 
     cgGLSetParameter2f(cgGetNamedParameter(shader.textureProgram, "window_size"), w_width, w_height);
 
@@ -241,7 +242,6 @@ void display(void)
         vis.depth_tex = vis.alternate_depth_tex;
         vis.alternate_depth_tex = temp;
     }
-
     // draw intermediate textures to full screen quad on screen
     drawTextureToScreen();
 
