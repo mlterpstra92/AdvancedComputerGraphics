@@ -3,98 +3,24 @@ float2 wposToUVcoord(float2 wpos, float2 window_size)
     return float2(wpos.x/(window_size.x-1.0), wpos.y/(window_size.y-1.0));
 }
 
-// float2 toUV(float2 coord, float2 window_size)
-// {
-//     return float2(coord.x/(window_size.x-1.0), coord.y/(window_size.y-1.0));
-// }
-
-// float3 coordTo3D(float2 coord, float z, uniform float2 window_size, uniform float4x4 proj_matrix)
-// {
-//     const float w = proj_matrix[0][0];
-//     const float h = proj_matrix[1][1];
-
-//     float2 uv = toUV(coord, window_size);
-//     uv = uv * 2.0 - 1.0;
-//     float x = -uv.x/w * z;
-//     float y = -uv.y/h * z;
-
-//     return float3(x,y,z);
-// }
-
-// float3 getDelta(float2 baseCoord, float2 diff, uniform sampler2D depth, uniform float2 window_size, uniform float4x4 proj_matrix)
-// {
-//     float2 diffUV = toUV(diff, window_size);
-
-//     float plusDepth = tex2D(depth, baseCoord + diffUV).r;
-//     float minDepth = tex2D(depth, baseCoord - diffUV).r;
-    
-//     if (plusDepth == 0 || minDepth == 0)
-//         return float3(0, 0, 0);
-
-//     float3 plusdiff = coordTo3D(baseCoord + diffUV, plusDepth, window_size, proj_matrix);
-//     float3 mindiff = coordTo3D(baseCoord - diffUV, minDepth, window_size, proj_matrix);
-
-//     return (plusdiff - mindiff);
-// }
-
-
 float3 calc_normal(float2 uv_coord, float2 wpos, float depth, uniform sampler2D depth_values, uniform float2 C, uniform float2 wsize, uniform float4x4 proj_matrix) {
-    // https://github.com/halcy/simpleflow/blob/master/WaterSim2/curvatureflow.frag
+    //Calculate normal as according to the paper
     float2 dx = wposToUVcoord(float2(1,0), wsize);
     float2 dy = wposToUVcoord(float2(0,1), wsize);
 
     float depth_dxp = tex2D(depth_values, uv_coord + dx).x;
     float depth_dxn = tex2D(depth_values, uv_coord - dx).x;
-    float depth_dx = 0;
-    float depth_dy = 0;
-    if (depth_dxp == 0.0)
-    {
-        if (depth_dxn == 0.0f)
-        {
-            depth_dx = 0.0;
-        } else {
-            depth_dx = depth - depth_dxn;
-        }
-    }
-    else
-    {
-        depth_dx = depth_dxp - depth;
-    }
+    float depth_dx = (depth_dxp - depth_dxn) / 2.0;
 
     float depth_dyp = tex2D(depth_values, uv_coord + dy).x;
     float depth_dyn = tex2D(depth_values, uv_coord - dy).x;
-    if (depth_dyp == 0.0)
-    {
-        if (depth_dyn == 0.0f)
-        {
-            depth_dy = 0.0;
-        } else {
-            depth_dy = depth - depth_dyn;
-        }
-    }
-    else
-    {
-        depth_dy = depth_dyp - depth;
-    }
+    float depth_dy = (depth_dyp - depth_dyn) / 2.0;
 
-    float wx = (wsize.x - 2.0f * wpos.x) / (wsize.x * proj_matrix[0][0]);
-    float wy = (wsize.y - 2.0f * wpos.y) / (wsize.y * proj_matrix[1][1]);
+    float2 depth_d = float2((depth_dxp == 0.0 || depth_dxn == 0.0) ? 0.0 : depth_dx, (depth_dyp == 0.0 || depth_dyn == 0.0) ? 0.0 : depth_dy);
 
-    // Eyespace position derivatives
-    float3 pdx = normalize(float3(C.x * depth + wx * depth_dx, wy * depth_dx, depth_dx));
-    float3 pdy = normalize(float3(wx * depth_dy, C.y * depth + wy * depth_dy, depth_dy));
-
-    return normalize(cross(pdx, pdy));
+    float3 N = float3(-C.y * depth_d.x, -C.x * depth_d.y, C.x * C.y * depth) * depth;
+    return normalize(N);
 }
-
-
-// float3 calculateNormal(float2 coord, uniform sampler2D depth, uniform float2 window_size, uniform float4x4 proj_matrix)
-// {
-//     float3 dx = getDelta(coord, float2(1, 0), depth, window_size, proj_matrix);
-//     float3 dy = getDelta(coord, float2(0, 1), depth, window_size, proj_matrix);
-
-//     return normalize(cross(dx,dy));
-// }
 
 float4 main(
     int2 wpos : WPOS,
@@ -105,12 +31,10 @@ float4 main(
     uniform float4x4 modelview_IT_matrix,
     uniform float4x4 proj_matrix,
     uniform float2 window_size,
-    uniform float2 C,
     uniform float method
     ) : COLOR
 {
     // Extract the parameters we passed in the render targets
-    // float2 uv_coord = wposToUVcoord(wpos, window_size);
     float4 color  = tex2D(colorin, coord);
     float depth  = tex2D(depth_values, coord).x;
     float3 normalizedColor = color.rgb / color.a;
@@ -122,10 +46,9 @@ float4 main(
     const float3 lightdir = float3(0, 1, 2);
     const float3 eye_loc = float3(0,0,1);
     const float4 b = float4(1.0);
-    float2 this_C = float2(2.0 / (window_size.x * proj_matrix[0][0]), 2.0 / (window_size.y * proj_matrix[1][1]));
+    float2 this_C = float2(2.0 / (window_size.x * -proj_matrix[0][0]), 2.0 / (window_size.y * -proj_matrix[1][1]));
 
     float3 normal = mul(modelview_IT_matrix, float4(calc_normal(coord, wpos, depth, depth_values, this_C, window_size, proj_matrix), 1.0)).xyz;
-    // float3 normal = calculateNormal(coord, depth_values, window_size, proj_matrix);
     // Calculate position in eye space
     float3 p_eye = mul(modelview_matrix, float4(wpos, depth, 0.0)).xyz;
 

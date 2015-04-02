@@ -60,14 +60,6 @@ void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar
     glFrustum( view_left, view_right, view_bottom, view_top, zNear, zFar );
 }
 
-float calulateC(float fovy, float size)
-{
-    // Calculate focal length from fovy
-    float focal_length = (size / 2.0) / (tan(fovy / 2.0));
-    // Calculate C according to Paper
-    return 2.0 / (size * focal_length);
-}
-
 void setdepthShaderParams()
 {
     // Bind variables to shaders
@@ -91,10 +83,7 @@ void setdepthShaderParams()
     cgGLSetParameter1f(cgGetNamedParameter(shader.depthFragmentProgram, "point_radius"), radius);
     
     cgGLSetParameter2f(cgGetNamedParameter(shader.textureFragmentProgram, "window_size"), w_width, w_height);
-    float Cx = calulateC(fovy, w_width);
-    float Cy = calulateC(fovy, w_height);
 
-    cgGLSetParameter2f(cgGetNamedParameter(shader.textureFragmentProgram, "C"), Cx, Cy);
     cgGLSetParameter1f(cgGetNamedParameter(shader.textureFragmentProgram, "method"), vis.method);
     cgGLSetStateMatrixParameter(
         cgGetNamedParameter(shader.textureFragmentProgram, "modelview_matrix"), 
@@ -161,10 +150,6 @@ void surfaceSmoothPass()
     cgGLSetTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"), vis.depth_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.smoothFragmentProgram,"depth_values"));
     // smooth Fragment shader
-    // Cross components of determining normal (from the paper)
-    float Cx = calulateC(fovy, w_width);
-    float Cy = calulateC(fovy, w_height);
-    cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "C"), Cx, Cy);
     cgGLSetParameter2f(cgGetNamedParameter(shader.smoothFragmentProgram, "window_size"), w_width, w_height);
 
     cgGLSetStateMatrixParameter(

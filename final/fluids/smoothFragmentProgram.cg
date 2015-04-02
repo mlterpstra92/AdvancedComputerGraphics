@@ -3,78 +3,56 @@ float2 wposToUVcoord(float2 wpos, float2 window_size)
 	return float2(wpos.x/(window_size.x-1.0), wpos.y/(window_size.y-1.0));
 }
 
-float blurredDepth(float filterRadius, float blurScale, float blurDepthFalloff, float depth, uniform sampler2D texture, float2 coord, float2 blurDirection)
-{
-	float sum = 0;
-	float wsum = 0;
-
-	for (float x = -filterRadius; x <= filterRadius; x += 1.0)
-	{
-		float sample = tex2D(texture, coord + x * blurDirection).x;
-		// spatial domain
-		float r = x * blurScale;
-		float w = exp(-r*r);
-		// range domain
-		float r2 = (sample - depth) * blurDepthFalloff; float g = exp(-r2*r2);
-		sum += sample * w * g; wsum += w * g;
-	}
-
-	if (wsum > 0.0)
-	{
-		 sum /= wsum;
-	}
-
-	return sum;
-}
-
-
 float3 mean_curvature(float2 uv_coord, float depth, uniform sampler2D depth_values, uniform float2 C, uniform float2 window_size)
 {
 	// delta_x and delta_y are small offsets to determine curvature
 	float2 dx = wposToUVcoord(float2(1,0), window_size);
 	float2 dy = wposToUVcoord(float2(0,1), window_size);
+
 	// First order central differences
 	float depth_dxp = tex2D(depth_values, uv_coord + dx).x;
 	float depth_dxn = tex2D(depth_values, uv_coord - dx).x;
+	float depth_dx = (depth_dxp - depth_dxn) / 2.0;
+	depth_dx = (depth_dxp == 0.0 || depth_dxn == 0.0) ? 0.0 : depth_dx;
+
 	float depth_dyp = tex2D(depth_values, uv_coord + dy).x;
 	float depth_dyn = tex2D(depth_values, uv_coord - dy).x;
-	float depth_dx = (depth_dxp - depth_dxn) / 2.0;
 	float depth_dy = (depth_dyp - depth_dyn) / 2.0;
-	if (depth_dxp <= 0 || depth_dxn <= 0)
-	{
-		depth_dx = 0.0;
-	}
+	float2 depth_d = float2((depth_dxp == 0.0 || depth_dxn == 0.0) ? 0.0 : depth_dx, (depth_dyp == 0.0 || depth_dyn == 0.0) ? 0.0 : depth_dy);
 
-	if (depth_dyp <= 0 || depth_dyn <= 0)
-	{
-		depth_dy = 0.0;
-	}
-	// Second order central differences
-	float depth_dx2 = depth_dxp + depth_dxn - (2.0 * depth);
-	float depth_dy2 = depth_dyp + depth_dyn - (2.0 * depth);
-	float depth_dxpyp = tex2D(depth_values, uv_coord + dx + dy);
-	float depth_dxnyn = tex2D(depth_values, uv_coord - dx - dy);
-	float depth_dxpyn = tex2D(depth_values, uv_coord + dx - dy);
-	float depth_dxnyp = tex2D(depth_values, uv_coord - dx + dy);
-	float depth_dxy	= (depth_dxpyp + depth_dxnyn - depth_dxpyn - depth_dxnyp) / 4.0;
-	// TODO: Misschien verkeerde C
+	// central difference of first order central differences
+	float depth_dx2 = depth_dxp + depth_dxn - 2.0 * depth;
+	float depth_dy2 = depth_dyp + depth_dyn - 2.0 * depth;
+	float2 depth_d2 = float2(depth_dx2, depth_dy2);
 
-	// D from paper
+	// Second order central differences of depth
+	float depth_dxpyp = tex2D(depth_values, uv_coord + dx + dy).x;
+	float depth_dxnyn = tex2D(depth_values, uv_coord - dx - dy).x;
+	float depth_dxpyn = tex2D(depth_values, uv_coord + dx - dy).x;
+	float depth_dxnyp = tex2D(depth_values, uv_coord - dx + dy).x;
+	float depth_dxy = (depth_dxpyp + depth_dxnyn - depth_dxpyn - depth_dxnyp) / 4.0;
+
+	// D from the paper
 	float D = C.y * C.y * depth_dx * depth_dx + C.x * C.x * depth_dy * depth_dy + C.x * C.x * C.y * C.y * depth * depth;
-	float D_dx = C.y * C.y * 2.0 * depth_dx * depth_dx2 + C.x * C.x * 2.0 * depth_dy * depth_dxy + C.x * C.x * C.y * C.y * 2.0 * depth * depth_dx;
-	float D_dy = C.y * C.y * 2.0 * depth_dx * depth_dxy + C.x * C.x * 2.0 * depth_dy * depth_dy2 + C.x * C.x * C.y * C.y * 2.0 * depth * depth_dy;
-	float Ex = 0.5 * depth_dx * D_dx - depth_dx2 * D;
-	float Ey = 0.5 * depth_dy * D_dy - depth_dy2 * D;
+	
+	// Derive D
+	float ddx = C.y * C.y * 2.0 * depth_dx * depth_dx2 + C.x * C.x * 2.0 * depth_dy * depth_dxy + C.x * C.x * C.y * C.y * 2.0 * depth * depth_dx;
+	float ddy = C.y * C.y * 2.0 * depth_dx * depth_dxy + C.x * C.x * 2.0 * depth_dy * depth_dy2 + C.x * C.x * C.y * C.y * 2.0 * depth * depth_dy;
+	float2 dd = float2(ddx, ddy);
+
+	// E values necessary for curvature
+	float2 E = 0.5 * depth_d * dd - depth_d2 * D;
+
 	// Finally, mean curvature
-	float h = 0.5 * ((C.y * Ex + C.x * Ey) / pow(D, 1.5f));
-	return(float3(depth_dx, depth_dy, h));
+	float curvature = (C.y * E.x + C.x * E.y) / pow(D, 1.5);
+	
+	return float3(depth_d, curvature / 2.0);
+
 }
 
 float main(
-	// https://github.com/halcy/simpleflow/blob/master/WaterSim2/curvatureflow.frag
 	float2 wpos : WPOS,
 	float2 coord : TEXCOORD0,
-	uniform float2 C,
 	uniform float2 window_size,
 	uniform sampler2D depth_values,
 	uniform float4x4 proj_matrix
@@ -83,34 +61,17 @@ float main(
 {
 	float depth = tex2D(depth_values, coord).x;
 	if (depth >= 1)
-	{
 		discard;
-	}
+
 	if (depth == 0)
-		return 0;
+		return 0.0;
 
-	float dt = 0.00055f;
-	float dzt = 1000.0f;
-	float2 this_C = float2(2.0 / (window_size.x * proj_matrix[0][0]), 2.0 / (window_size.y * proj_matrix[1][1]));
+	float dt = 0.00055;
+	float dzt = 1000.0;
+	float2 C = float2(2.0 / (window_size.x * -proj_matrix[0][0]), 2.0 / (window_size.y * -proj_matrix[1][1]));
 
-
-	float3 curvature = mean_curvature(coord, depth, depth_values, this_C, window_size);
-	return depth + curvature.z;
-	// return depth + curvature.z * dt * (1.0 + (abs(curvature.x) + abs(curvature.y)) * dzt);
-
-	// const float2 horizontal = wposToUVcoord(float2(1,0), window_size);
-	// const float2 vertical = wposToUVcoord(float2(0,1), window_size);
-
-	// // int x = 0;
-	// // int y = 0;
-
-	// const float filterRadius = 10;
-	// const float blurScale = 1.0/3.0;
-	// const float blurDepthFalloff = 0.1;
-
-	// float sum = blurredDepth(filterRadius, blurScale, blurDepthFalloff, depth, depth_values, coord, horizontal)
-	//             + blurredDepth(filterRadius, blurScale, blurDepthFalloff, depth, depth_values, coord, vertical);
-
-	// return sum / 2.0;
-
+	float3 curvature = mean_curvature(coord, depth, depth_values, C, window_size);
+	if (curvature.x == 0.0 || curvature.y == 0.0)
+		return depth;
+	return depth + curvature.z * dt * (1.0 + (abs(curvature.x) + abs(curvature.y)) * dzt);
 }
