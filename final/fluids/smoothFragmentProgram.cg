@@ -66,8 +66,8 @@ float main(
 	if (depth == 0)
 		return 0.0;
 
-	float dt = 0.00055;
-	float dzt = 1000.0;
+	float dt = 0.000055;
+	float dzt = 10000.0;
 	float2 C = float2(2.0 / (window_size.x * -proj_matrix[0][0]), 2.0 / (window_size.y * -proj_matrix[1][1]));
 
 	float3 curvature = mean_curvature(coord, depth, depth_values, C, window_size);
