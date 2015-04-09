@@ -34,9 +34,11 @@ float fovy = 60.0f;
 unsigned int w_width = 1280;
 unsigned int w_height = 720;
 
-const float eye[]    = { 0.0, 0.0, 1.0 };
-const float origin[] = { 0.0, 0.0, 0.0 };
-const float up[]     = { 0.0, 1.0, 0.0 };
+const float eye[]         = { 0.0,  0.0,  1.0   };
+const float light_dir[]   = { 0.0,  1.0,  2.0   };
+const float origin[]      = { 0.0,  0.0,  0.0   };
+const float up[]          = { 0.0,  1.0,  0.0   };
+const float sand[]        = { 0.93, 0.84, 0.686 };
 
 int mainWindow;
 Visualisation vis;
@@ -83,6 +85,8 @@ void setdepthShaderParams()
     cgGLSetParameter1f(cgGetNamedParameter(shader.depthFragmentProgram, "point_radius"), radius);
     
     cgGLSetParameter2f(cgGetNamedParameter(shader.textureFragmentProgram, "window_size"), w_width, w_height);
+    cgGLSetParameter3f(cgGetNamedParameter(shader.textureFragmentProgram, "eye_loc"), eye[0], eye[1], eye[2]);
+    cgGLSetParameter3f(cgGetNamedParameter(shader.textureFragmentProgram, "light_dir"), light_dir[0], light_dir[1], light_dir[2]);
 
     cgGLSetParameter1f(cgGetNamedParameter(shader.textureFragmentProgram, "method"), vis.method);
     cgGLSetStateMatrixParameter(
@@ -113,7 +117,7 @@ void thicknessPass()
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     vis.renderParticles();
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
@@ -179,8 +183,6 @@ void drawTextureToScreen()
     cgGLSetTextureParameter(cgGetNamedParameter(shader.textureFragmentProgram,"depth_values"), vis.depth_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureFragmentProgram,"depth_values"));
 
-    cgGLSetParameter1f(cgGetNamedParameter(shader.textureFragmentProgram, "background_color"), vis.background_color/255.0);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     drawFullScreenQuad();
@@ -191,8 +193,8 @@ void drawTextureToScreen()
 void display(void)
 {
     glEnable(GL_DEPTH_TEST);
-    std::cout << vis.background_color  << std::endl;
-    glClearColor(vis.background_color/255.0,vis.background_color/255.0, vis.background_color/255.0, 1e-6);
+    // Clear in color of sandy beach
+    glClearColor(sand[0], sand[1], sand[2], 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glMatrixMode(GL_PROJECTION);
@@ -224,8 +226,8 @@ void display(void)
     GLenum bufs[2] = {GL_COLOR_ATTACHMENT0_EXT, GL_DEPTH_ATTACHMENT_EXT};
     glDrawBuffers(2, bufs);
 
-    // Clear FBO
-    glClearColor(vis.background_color/255.0,vis.background_color/255.0, vis.background_color/255.0, 1e-6);
+    // Clear FBO in a sandy beach color
+    glClearColor(sand[0], sand[1], sand[2], 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Write depth values to initial depth buffer of fbo
@@ -309,6 +311,8 @@ void OnMouseDown(int button, int state, int x, int y)
             vis.zoomFactor += 0.03;
         reshape(w_width, w_height);
     }
+    if (vis.zoomFactor < 0.42)
+        vis.zoomFactor = 0.42;
 
     glutSetWindow(mainWindow);
     glutPostRedisplay();

@@ -30,9 +30,10 @@ float4 main(
     uniform float4x4 modelview_matrix,
     uniform float4x4 modelview_IT_matrix,
     uniform float4x4 proj_matrix,
+    uniform float3 eye_loc,
+    uniform float3 light_dir,
     uniform float2 window_size,
-    uniform float method,
-    uniform float background_color
+    uniform float method
     ) : COLOR
 {
     // Extract the parameters we passed in the render targets
@@ -44,12 +45,9 @@ float4 main(
     if (depth >= 1)
         discard;
 
-    const float3 lightdir = float3(0, 1, 2);
-    const float3 eye_loc = float3(0,0,1);
-    const float4 b = float4(float3(background_color),1.0);
-    float2 this_C = float2(2.0 / (window_size.x * -proj_matrix[0][0]), 2.0 / (window_size.y * -proj_matrix[1][1]));
+    float2 C = float2(2.0 / (window_size.x * -proj_matrix[0][0]), 2.0 / (window_size.y * -proj_matrix[1][1]));
 
-    float3 normal = mul(modelview_IT_matrix, float4(calc_normal(coord, wpos, depth, depth_values, this_C, window_size, proj_matrix), 1.0)).xyz;
+    float3 normal = mul(modelview_IT_matrix, float4(calc_normal(coord, wpos, depth, depth_values, C, window_size, proj_matrix), 0.0)).xyz;
     // Calculate position in eye space
     float3 p_eye = mul(modelview_matrix, float4(wpos, depth, 0.0)).xyz;
 
@@ -62,11 +60,11 @@ float4 main(
     // Phong lighting model 
     float NV = dot(normal, viewdir);
 
-    float3 halfvec = normalize(lightdir + viewdir);
+    float3 halfvec = normalize(light_dir + viewdir);
     float NH = dot(normal, halfvec);
 
-
-    float diffuse = max(dot(normal, lightdir), 0.0);
+    //Prevent ugly black borders around
+    float diffuse = max(dot(normal, light_dir), 0.5);
 
     // Phong specular component
     float specular = pow(max(NH, 0.0), shininess);
@@ -74,6 +72,8 @@ float4 main(
     // Refraction indices for air and water
     float air_refraction = 1.0;
     float water_refraction = 1.3333;
+    float T = color.r;
+    float4 c_beer = float4(exp(-.6*T), exp(-.2*T), exp(-.05*T), 1-exp(-3*T));
 
     // Schlick's approximation. Approximates the fresnel equation for refraction and reflection
     float r0 = pow((air_refraction - water_refraction) / (air_refraction + water_refraction), 2.0);
@@ -85,8 +85,5 @@ float4 main(
     if (method == 2)
         return float4(depth, depth, depth ,1);
     if (method == 3)
-        return float4(normal, 1.0);
+        return float4(float3(diffuse), 1.0) * c_beer;
 }
-
-
-

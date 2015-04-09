@@ -30,6 +30,6 @@ void main(
 	// Convert to homogeneous device coordinates
 	depth_out = clipPos.z / clipPos.w;
 	// Emit color as Prussian Blue
-    col = float4(0.0, 0.49, 0.83, .25);
-    // col = float4(depth_out, depth_out, depth_out, 1.00);
+    // col = float4(0.0, 0.49, 0.83, .25);
+    col = float4(0.02, 0.267, 0.3, .4);
 }
