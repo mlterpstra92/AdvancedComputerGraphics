@@ -30,14 +30,23 @@ This result is subsequently written to a depth buffer.
 Note that merely the depth value is splatted and the color and normal attributes are left unchanged as they will be changed in later steps.
 
 \subsection{Surface smoothing}
+\label{sec:smoothing}
 Smoothing is a critical component in the paper. It is responsible for creating a smooth surface from a set of points so to avoid a blobby and jelly-like surface which is undesirable. The paper argues that this is a better approach than using Gaussian blurring because it performs better and ought to produce better results because there will be no silhouette blurring. 
 This is achieved by translating points along the $z$-axis according the curvature flow. 
 
-Curvature flow is defined by the divergence of the normal by \(2H = \nabla \cdot \hat{\mathbf{n}}\). Subsequently, depth values can be displaced every timestep based on the curvature in that point, as \(\frac{\partial z}{\partial t} = H\).
+Curvature flow is defined as the divergence of the normal by \(2H = \nabla \cdot \hat{\mathbf{n}}\). Subsequently, depth values can be displaced every timestep based on the curvature in that point, as \(\frac{\partial z}{\partial t} = H\).
 
-To obtain normals, the point of which the normal needs to be determined is mapped back to a point in view by inverting the projection transformation. This point is called \[\mathbf{P}(x, y) = \begin{pmatrix}\frac{\frac{2x}{V_x} - 1.0}{F_x}\\\frac{\frac{2y}{V_y} - 1.0}{F_y}\\1\end{pmatrix}z(x,y) = \begin{pmatrix}W_x\\W_y\\1\end{pmatrix}z(x,y)\] where \(V_x\) and \(V_y\) are the viewport dimensions and \(F_x\) and \(F_y\) is the focal length in \(x\) and \(y\) component.
+To obtain normals, the point of which the normal needs to be determined is mapped back to a point in view by inverting the projection transformation. This point is called \begin{equation}
+	\label{eq:pcalc}
+	\mathbf{P}(x, y) = \begin{pmatrix}\frac{\frac{2x}{V_x} - 1.0}{F_x}\\\frac{\frac{2y}{V_y} - 1.0}{F_y}\\1\end{pmatrix}z(x,y) = \begin{pmatrix}W_x\\W_y\\1\end{pmatrix}z(x,y)
+\end{equation}
+where \(V_x\) and \(V_y\) are the viewport dimensions and \(F_x\) and \(F_y\) is the focal length in \(x\) and \(y\) component.
 
-The normal is then obtained by \[\mathbf{n}(x,y) = \frac{\partial \mathbf{P}}{\partial x} \times \frac{\partial \mathbf{P}}{\partial y}\]
+The normal is then obtained by 
+\begin{equation}
+	\label{eq:norm}
+	\mathbf{n}(x,y) = \frac{\partial \mathbf{P}}{\partial x} \times \frac{\partial \mathbf{P}}{\partial y}
+\end{equation}
 Rigorous algebra shows that 
 \begin{equation}
 	\label{eq:normals}
@@ -45,9 +54,22 @@ Rigorous algebra shows that
 \end{equation}
 Here \(C_x = \frac{2}{V_xF_x}\) and \(C_y = \frac{2}{V_yF_y}\) 
 
-Subsequently, the unit normal must be obtained. This is obtained by \(\hat{\mathbf{n}}(x,y) = \frac{\mathbf{n}(x,y)}{\mid \mathbf{n}(x,y)\mid}\)
+Subsequently, the unit normal must be obtained. This is obtained by \(\hat{\mathbf{n}}(x,y) = \frac{\mathbf{n}(x,y)}{\mid \mathbf{n}(x,y)\mid} = \frac{\mathbf{n}(x,y)}{\sqrt{D}}\) where 
+\begin{equation}
+	\label{eq:D}
+	D = C_y^2 \left(\frac{\partial z}{\partial x}\right)^2 + C_x^2 \left(\frac{\partial z}{\partial y}\right)^2 + C_x^2 C_y^2 z^2
+\end{equation}
 
-Now that we have a unit normal we can define mean curvature as \[2H = \frac{\partial \hat{\mathbf{n}}_x}{\partial x} + \frac{\partial\hat{\mathbf{n}}_y}{\partial y}\]
+Now that we have a unit normal we can define mean curvature as 
+\begin{equation}
+	\label{eq:curvy}
+	2H = \frac{\partial \hat{\mathbf{n}}_x}{\partial x} + \frac{\partial\hat{\mathbf{n}}_y}{\partial y} = \frac{C_y E_x + C_x E_y}{D\sqrt{D}}
+\end{equation}
+in which
+\begin{eqnarray}
+	E_x &=& \frac{1}{2}\frac{\partial z}{\partial x}\frac{\partial D}{\partial x} - \frac{\partial^2z}{\partial x^2}D\\
+	E_y &=& \frac{1}{2}\frac{\partial z}{\partial y}\frac{\partial D}{\partial y} - \frac{\partial^2z}{\partial y^2}D
+\end{eqnarray}
 
 These values can be calculated fairly easy and can thus be used to modify the \(z\)-values in the visualization easily and fast using Euler integration in time.
 
@@ -67,9 +89,10 @@ Also, foam can be added to the fluid by adding grey according to the magnitude o
 Finally, all intermediate results are merged together in a final texture that is rendered as full-screen quad.
 The Fresnel equation is used to calculate the correct reflection and refraction vectors needed for the Phong \cite{phong1975illumination} illumination model.
 This results in the following equation \cite{van2009screen}to determine the output color:
-\begin{eqnarray}
+\begin{equation}
+\label{eq:shading}
 C_{out} = a(1 - F(\mathbf{n} \cdot \mathbf{v})) + bF(\mathbf{n} \cdot \mathbf{v}) + k_s(\mathbf{n} \cdot \mathbf{h})^\alpha.
-\end{eqnarray}
+\end{equation}
 $F$ is the Fresnel equation, $a$ is the refracted fluid color, $b$ is the reflected scene color, $k_s$ and $\alpha$ are both constant and represent the specular highlight. $\mathbf{n}$ is the normal along the surface, $\mathbf{h}$ is the half-angle between the camera and the light, and $\mathbf{v}$ is the direction pointing towards the camera.
 
 
