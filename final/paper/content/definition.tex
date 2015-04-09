@@ -34,10 +34,22 @@ Moreover, the surface needs to be imperfect. This may sound counter-intuitive as
 Finally, a fluid should also act as a fluid in a simulation. This means that object attributes as color should be attenuated as that object is submerged in the fluid and the fluid should produce foam if it is mixed with gases in large quantities. 
 
 The combinations of these components are what can make a fluid surface visualization realistic and it these components we seek.
+
 \subsection{Related work}
 Various methods are developed that try to achieve a natural rendering of fluid.
-Some of these techniques require to use a mesh, which is not desirable.
-Other techniques have the drawback that they can not be rendered in real-time.
+
+A method to render fluids has been proposed by Williams \cite{williams2008fluid} that uses Marching Tiles. 
+The method creates smooth surfaces but the drawback is that these surfaces can not be rendered in real-time.
+
+An improvement Rosenberg and Birdwell \cite{rosenberg2008real} proposed is to extract the isosurface to reduce the amount of particles that need to be rendered.
+The Marching Cubes algorithm is used as a base for this extraction technique.
+The advantage is that rendering becomes relatively fast, however the mesh is not smooth and since it is rendered directly, post-processing the result can not be done.
+
+The problem of both Williams his method and Rosenberg and Birdwell their method is that they require a fixed grid, which is not desirable for our implementation. 
+
+M\"uhler et al\cite{muller2007screen} proposed a method where the boundary of a mesh is generated, without the need of a fixed grid.
+The surface is smoothed using a binomial filter and creates an intermediate mesh.
+The drawback is that this method is computationally very expensive.
 
 \cite{zhang2008adaptive} developed a method that makes use of point-based rendering, therefore a grid is unnecessary.
 However, a drawback of this method is that it results in unreasonably thick surfaces.
