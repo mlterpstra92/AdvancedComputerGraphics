@@ -171,7 +171,7 @@ void surfaceSmoothPass()
 void drawTextureToScreen()
 {
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    glDepthMask(GL_TRUE); // TODO: Not sure
+    glDepthMask(GL_TRUE);
     cgGLEnableProfile(shader.vertexProfile);
     cgGLBindProgram(shader.textureVertexProgram);
     cgGLEnableProfile(shader.fragmentProfile);
@@ -234,7 +234,6 @@ void display(void)
     surfaceDepthPass();
     // Write colors to color_tex COLOR_ATTACHMENT0 of fbo
     thicknessPass();
-
 
     // Smooth the depth values in the depth buffer.
     for(int i = 0; i < (vis.smoothSteps * 2); ++i)

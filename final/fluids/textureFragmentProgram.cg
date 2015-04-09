@@ -85,5 +85,5 @@ float4 main(
     if (method == 2)
         return float4(depth, depth, depth ,1);
     if (method == 3)
-        return float4(float3(diffuse), 1.0) * c_beer;
+        return float4(normal, 1.0);
 }

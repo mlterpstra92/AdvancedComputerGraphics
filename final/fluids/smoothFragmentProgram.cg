@@ -47,7 +47,6 @@ float3 mean_curvature(float2 uv_coord, float depth, uniform sampler2D depth_valu
 	float curvature = (C.y * E.x + C.x * E.y) / pow(D, 1.5);
 	
 	return float3(depth_d, curvature / 2.0);
-
 }
 
 float main(
