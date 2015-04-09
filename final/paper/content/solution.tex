@@ -94,15 +94,3 @@ This results in the following equation \cite{van2009screen}to determine the outp
 C_{out} = a(1 - F(\mathbf{n} \cdot \mathbf{v})) + bF(\mathbf{n} \cdot \mathbf{v}) + k_s(\mathbf{n} \cdot \mathbf{h})^\alpha.
 \end{equation}
 $F$ is the Fresnel equation, $a$ is the refracted fluid color, $b$ is the reflected scene color, $k_s$ and $\alpha$ are both constant and represent the specular highlight. $\mathbf{n}$ is the normal along the surface, $\mathbf{h}$ is the half-angle between the camera and the light, and $\mathbf{v}$ is the direction pointing towards the camera.
-
-
-\subsection{Fit}
-When the initial requirements for the realistic water rendering are considered it seems that the curvature flow way is a good fit.
-\begin{itemize}
-\item Given enough iterations of the fluid surface, a surface will become smooth and will have no sharp discontinuities between particles.
-\item It is possible to generate an imperfect surface by adding a noise texture to the surface and attaching it to particles. This will distort the surface a little bit and will create an imperfect, and more natural surface
-\item It takes into account attenuation of colors based on the depth of the fluids and submerged objects. Moreover, foam can be added for an added realistic effect.
-\end{itemize}
-Besides that it can produce a natural rendering of a fluid surface, it is also fast. 
-It can render a smooth surface from thousands of particles and still have an acceptable framerate. 
-This is also an important quality for a simulation.
