@@ -30,6 +30,7 @@ This result is subsequently written to a depth buffer.
 Note that merely the depth value is splatted and the color and normal attributes are left unchanged as they will be changed in later steps.
 
 \subsection{Surface smoothing}
+\label{sec:smoothing}
 Smoothing is a critical component in the paper. It is responsible for creating a smooth surface from a set of points so to avoid a blobby and jelly-like surface which is undesirable. The paper argues that this is a better approach than using Gaussian blurring because it performs better and ought to produce better results because there will be no silhouette blurring. 
 This is achieved by translating points along the $z$-axis according the curvature flow. 
 
