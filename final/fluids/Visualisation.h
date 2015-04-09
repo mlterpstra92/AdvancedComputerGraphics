@@ -24,6 +24,7 @@ public:
 	bool isRotating;
 	int smoothSteps;
 	int method;
+	int background_color;
 
 	float baseX;
 	float baseY;

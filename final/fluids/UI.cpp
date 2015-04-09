@@ -22,7 +22,9 @@ void UI::initialise(int mainWindow)
 	glui->add_checkbox_to_panel(options_panel, "Dynamic gravity", &sim.dynamicGravity);
 	glui->add_checkbox_to_panel(options_panel, "Freeze Simulation", &sim.frozen);
 	GLUI_Spinner *spinner = glui->add_spinner_to_panel (options_panel, "Smooth steps", GLUI_SPINNER_INT, &vis.smoothSteps);
-	spinner->set_int_limits(0, 32, GLUI_LIMIT_CLAMP);
+	spinner->set_int_limits(0, 100, GLUI_LIMIT_CLAMP);
+	GLUI_Spinner *spinner2 = glui->add_spinner_to_panel (options_panel, "Background", GLUI_SPINNER_INT, &vis.background_color);
+	spinner2->set_int_limits(0, 255, GLUI_LIMIT_CLAMP);
 	GLUI_Listbox *listbox = glui->add_listbox_to_panel(options_panel, "Color method", &vis.method);
 	listbox->add_item(1, "Water");
 	listbox->add_item(2, "Depth");

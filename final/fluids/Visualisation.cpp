@@ -20,6 +20,7 @@ Visualisation::Visualisation()
     oldY = 0;
     isRotating = false;
     smoothSteps = 0;
+    background_color = 127;
 }
 
 void Visualisation::renderParticles()

@@ -31,7 +31,8 @@ float4 main(
     uniform float4x4 modelview_IT_matrix,
     uniform float4x4 proj_matrix,
     uniform float2 window_size,
-    uniform float method
+    uniform float method,
+    uniform float background_color
     ) : COLOR
 {
     // Extract the parameters we passed in the render targets
@@ -45,7 +46,7 @@ float4 main(
 
     const float3 lightdir = float3(0, 1, 2);
     const float3 eye_loc = float3(0,0,1);
-    const float4 b = float4(1.0);
+    const float4 b = float4(float3(background_color),1.0);
     float2 this_C = float2(2.0 / (window_size.x * -proj_matrix[0][0]), 2.0 / (window_size.y * -proj_matrix[1][1]));
 
     float3 normal = mul(modelview_IT_matrix, float4(calc_normal(coord, wpos, depth, depth_values, this_C, window_size, proj_matrix), 1.0)).xyz;

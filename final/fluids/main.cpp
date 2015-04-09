@@ -179,6 +179,8 @@ void drawTextureToScreen()
     cgGLSetTextureParameter(cgGetNamedParameter(shader.textureFragmentProgram,"depth_values"), vis.depth_tex);
     cgGLEnableTextureParameter(cgGetNamedParameter(shader.textureFragmentProgram,"depth_values"));
 
+    cgGLSetParameter1f(cgGetNamedParameter(shader.textureFragmentProgram, "background_color"), vis.background_color/255.0);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     drawFullScreenQuad();
@@ -189,7 +191,8 @@ void drawTextureToScreen()
 void display(void)
 {
     glEnable(GL_DEPTH_TEST);
-    glClearColor(1, 1, 1, 1e-6);
+    std::cout << vis.background_color  << std::endl;
+    glClearColor(vis.background_color/255.0,vis.background_color/255.0, vis.background_color/255.0, 1e-6);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glMatrixMode(GL_PROJECTION);
@@ -222,7 +225,7 @@ void display(void)
     glDrawBuffers(2, bufs);
 
     // Clear FBO
-    glClearColor(1, 1, 1, 1e-6);
+    glClearColor(vis.background_color/255.0,vis.background_color/255.0, vis.background_color/255.0, 1e-6);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Write depth values to initial depth buffer of fbo
