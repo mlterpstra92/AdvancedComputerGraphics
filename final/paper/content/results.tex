@@ -39,4 +39,9 @@ When the initial requirements for the realistic water rendering are considered i
 \end{itemize}
 Besides that it can produce a natural rendering of a fluid surface, it is also fast. 
 It can render a smooth surface from thousands of particles and still have an acceptable framerate. 
-This is also an important quality for a simulation.
+
+Even so, there is still room for improvement with this method. There are possibilities to exploit parallelism in the form of GPGPU processing in order to improve performance.
+Moreover, this paper is currently several years old and large advancements have been made in the capabilities of graphics frameworks as OpenGL and DirectX.
+These new features could be exploited for a higher performance and better visualization.
+
+Also, our current implementation is not perfect. Several features as described in the paper are missing, thus reducing the realism and immersion. Improvements can be made by implementing features as thickness, noise and foam.
