@@ -9,8 +9,7 @@ This is useful since we are using multiple passes.
 Also, multiple buffers can be attached to the FBO.
 
 \subsection{Depth determination}
-% TODO: Rephrase?
-The depth at each pixel of each particle closest to the camera is determined using a combination of a vertex- and fragment shader.
+The depth at each fragment of each particle closest to the camera is determined using a combination of a vertex- and fragment shader.
 Each particle has a position in world space that is passed to the vertex shader.
 These particles are rendered as spheres to determine the correct depth values.
 
@@ -37,31 +36,22 @@ It can be observed that the particles become darker when they appear  closer to 
 \begin{center}
 \vspace*{2ex}\includegraphics[width=0.48\textwidth,clip=true,trim=10cm 1cm 10cm 3cm]{pictures/depth_normal.png}
 \end{center}
-\caption{Visualisation of the unsmoothed depth components}
+\caption{Visualisation of the depth components}
 \label{fig:depth} 
 \vspace*{2ex}
 \hrule
 \end{figure}
 
-\begin{figure}[!th]
-\hrule
-\begin{center}
-\vspace*{2ex}\includegraphics[width=0.48\textwidth,clip=true,trim=10cm 1cm 10cm 3cm]{pictures/depth_smoothed.png}
-\end{center}
-\caption{Visualisation of the smoothed depth components}
-\label{fig:depth} 
-\vspace*{2ex}
-\hrule
-\end{figure}
 
 
 \subsection{Surface smoothing}
-For the smoothing of the surface there is one fragment shader with two depth textures.
-The original depth values are modified using curvature flow do smooth the surface.
+Smoothing is done using a fragment shader.
+% For the smoothing of the surface there is one fragment shader with two depth textures.
+The original depth values are modified using curvature flow to smooth the surface.
 Since one cannot modify the depth texture that is used for reading, there are two depth textures which are alternated during computation.
 
 The smoothing is determined in multiple iterations and depth values are modified in several timesteps.
-For the smoothing the normals do not have to be explicitly calculated
+% For the smoothing the normals do not have to be explicitly calculated, .
 In pseudocode, the algorithm is as follows.
 % Two fragment shaders are used for surface smoothing.
 % The first fragment shader calculates the surface normals from the depth values and writes them in a texture.
@@ -85,20 +75,36 @@ In pseudocode, the algorithm is as follows.
 	\caption{Surface smoothing pseudocode}
 \end{algorithm}
 
+
+\subsubsection{Depth smoothing}
+Using the depth values, finite differencing can be applied to determine derivatives of these values to obtain the curvature in every point, as equation~\ref{eq:curvy} describes.
+This curvature is used to modify the depth values which are subsequently written to another depth texture.
+We had trouble implementing this step in Cg, but we found a reference \footnote{\url{https://github.com/halcy/simpleflow/blob/master/WaterSim2/curvatureflow.frag}} that implemented the smoothing in GLSL, which we adapted to our needs.
+
+\subsection{Rendering}
+For the final rendering phase we implemented a fragment shader that produces a color for each fragment, which only has a depth component.
+We have a default color - RGB(0.02, 0.1, 0.3), with $\alpha = 0.5$ - for water that is modified according to its surroundings based on shading. 
+The end-results are projected onto a full-screen quad, which is the best option due to our framebuffer-objects.
+
+The paper suggests to implement a combination of Phong shading and the Fresnel equation for displaying the surface. 
+Normally, computing the Fresnel equation would be a costly and difficult operation.
+To circumvent this, we have applied Schlick's approximation to determine the reflective Fresnel component \cite{schlick1994inexpensive}.
+
 \subsubsection{Normal calculation}
-The depth buffer is passed as input to the fragment shader, along with the uniform variables $C_x$ and $C_y$.
-Since the depth buffer is in a texture, we can obtain the depth values of neighbours.
-Using these neighbours, the finite differences between depth values can be calculated in the $x$ and $y$ direction.
+To determine the normals of the surface, the depth buffer is passed as input to the fragment shader, along with the uniform variables $C_x$ and $C_y$.
+Since the depth buffer is in a texture, we can obtain the depth values of neighbors.
+Using these neighbors, the finite differences between depth values can be calculated in the $x$ and $y$ direction.
 Since we now have $C_x, C_y, \frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}$ and $z$, we can approximate the normals according to equation \ref{eq:normals}.
-A visualization of the normals, done by assigning the normal to the color output, can be seen in figure~\ref{fig:normals}. 
+A visualization of the normals, done by assigning the normal to the color output, can be seen in figure~\ref{fig:normals} and \ref{fig:normals2}. 
 These normals are essential for a correct shading of the surface, but are not explicitly needed for the smoothing of the surface.
+
 
 \begin{figure}[!th]
 \hrule
 \begin{center}
 \vspace*{2ex}\includegraphics[width=0.48\textwidth,clip=true,trim=10cm 1cm 10cm 3cm]{pictures/normal_normal.png}
 \end{center}
-\caption{Visualization of the unsmoothed normals}
+\caption{Visualization of the normals of a unsmoothed surface}
 \label{fig:normals} 
 \vspace*{2ex}
 \hrule
@@ -109,28 +115,8 @@ These normals are essential for a correct shading of the surface, but are not ex
 \begin{center}
 \vspace*{2ex}\includegraphics[width=0.48\textwidth,clip=true,trim=10cm 1cm 10cm 3cm]{pictures/normals_smoothed.png}
 \end{center}
-\caption{Visualization of the smoothed normals}
-\label{fig:normals} 
+\caption{Visualization of the normals of a smoothed surface}
+\label{fig:normals2} 
 \vspace*{2ex}
 \hrule
 \end{figure}
-
-
-\subsubsection{Depth smoothing}
-Using the depth values, finite differencing can be applied to determine derivatives of these values to obtain the curvature in every point. 
-This curvature is used to modify the depth values which are subsequently written to another depth texture.
-
-\subsection{Rendering}
-For the final rendering phase we implemented a fragment shader that produces a color for each fragment, which only has a depth component.
-We have a default color for water that is modified according to its surroundings based on shading. 
-The end-results are projected onto a full-screen quad, which is the best option due to our framebuffer-objects.
-
-The paper suggests to implement a combination of Phong shading and the Fresnel equations shading for displaying the surface. 
-
-Phong shading works by linearly interpolating the normals from the vertices across a surface \cite{phong1975illumination}. 
-This results in a smooth surface of an object with correct specular highlights, as opposed to Gouraud shading which is not smooth and may not render specular highlights.
-
-The Fresnel equations describe the the behaviour of light when it moves between media with different refractive indices. 
-This helps visualizing water in a realistic way because the rendering can take refraction and reflection of a fluid surface into account in a realistic way.
-
-Normally, computing the Fresnel equations would be a costly and difficult operation. To circumvent this, we have applied Schlick's approximation to determine the reflective Fresnel component \cite{schlick1994inexpensive}.
