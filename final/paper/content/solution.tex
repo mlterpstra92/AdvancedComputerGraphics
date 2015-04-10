@@ -102,8 +102,29 @@ Also, foam can be added to the fluid by adding grey according to the magnitude o
 
 \subsection{Rendering}
 Finally, all intermediate results are merged together in a final texture that is rendered as full-screen quad.
-The Fresnel equation is used to calculate the correct reflection and refraction vectors needed for the Phong \cite{phong1975illumination} illumination model.
-This results in the following equation \cite{van2009screen}to determine the output color:
+Since light changes direction when it moves between media, and thus the reflection and refraction vectors changes too, a calculation for this direction change is needed.
+A visualization of this behavior can be seen in figure~\ref{fig:fresnel}.
+\begin{figure}[!th]
+\hrule
+\begin{center}
+\vspace*{2ex}\includegraphics[width=0.48\textwidth]{pictures/Fresnel.eps}
+\end{center}
+\caption{Light direction change between surfaces (From: \url{http://en.wikipedia.org/wiki/File:Fresnel1.svg})}
+\label{fig:fresnel} 
+\vspace*{2ex}
+\hrule
+\end{figure}
+
+The Fresnel equation (by Augustin-Jean Fresnel) is used to calculate the correct reflection and refraction vectors,
+\begin{eqnarray}
+	R_s &=& \left\vert \frac{n_1 \cos \theta_i - n_2 \cos \theta_t}{n_1 \cos \theta_i + n_2 \cos \theta_t} \right\vert ^2 \\
+	T_s &=& 1 - R_s.
+\end{eqnarray}
+Where $R_s$ is the reflection vector, and $T_s$ is the refraction vector.
+The meaning of the other variables can be seen in figure~\ref{fig:fresnel}.
+Once these vectors are known, the Phong \cite{phong1975illumination} illumination model can be used for the rendering.
+
+This results in the following equation to determine the output color \cite{van2009screen}:
 \begin{equation}
 \label{eq:shading}
 C_{out} = a(1 - F(\mathbf{n} \cdot \mathbf{v})) + bF(\mathbf{n} \cdot \mathbf{v}) + k_s(\mathbf{n} \cdot \mathbf{h})^\alpha.
