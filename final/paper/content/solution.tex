@@ -1,14 +1,13 @@
 %!TEX root = ../report.tex
 \section{Solution}
-The paper introduced by van der Laan et al. \cite{van2009screen} provides a fitting solution to our problem.
+The paper introduced by \cite{van2009screen} provides a fitting solution to our problem.
 The paper describes a method for visualizing fluids simulated using SPH in a natural way.
-The goal of the paper is to provide a solution to our aforementioned problem.
-According to the paper, they want to create:
+According to the paper, they want to:
 \begin{enumerate}
-	\item \label{en:item1} Achieves real-time performance, with a configurable speed versus quality trade-off.
-	\item \label{en:item2} Does all the processing, rendering and shading steps directly on the graphics hardware.
-	\item \label{en:item3} Smooths the surface to prevent the fluid from looking blobby or jelly-like.
-	\item \label{en:item4} Is not based on polygonization, and thus does not suffer from the associated tessellation artifacts.
+	\item \label{en:item1} Achieve real-time performance, with a configurable speed versus quality trade-off.
+	\item \label{en:item2} Do all the processing, rendering and shading steps directly on the graphics hardware.
+	\item \label{en:item3} Smooth the surface to prevent the fluid from looking blobby or jelly-like.
+	\item \label{en:item4} Have a method that is not based on polygonization, thus not suffering from the associated tessellation artifacts.
 \end{enumerate}
 
 Items \ref{en:item1} and \ref{en:item3} have a direct connection with our goals and items \ref{en:item2} and \ref{en:item4} are ways to enable these goals.
@@ -24,19 +23,20 @@ The method described in the paper consists of multiple passes. It assumes that t
 \end{enumerate}
 
 \subsection{Depth determination}
-It is desirable to determine depth of fragment in the simulation in order to know which fragments are part of the surface. 
-In order to obtain these depth values, the points from the SPH simulation are splatted to discs and their fragments are subjected to a hardware depth test. 
+It is desirable to determine depth of particles in the simulation in order to know which particles are part of the surface. 
+In order to obtain these depth values, the particles from the SPH simulation are splatted to discs and their fragments are subjected to a hardware depth test. 
 This result is subsequently written to a depth buffer. 
 Note that merely the depth value is splatted and the color and normal attributes are left unchanged as they will be changed in later steps.
 
 \subsection{Surface smoothing}
 \label{sec:smoothing}
-Smoothing is a critical component in the paper. It is responsible for creating a smooth surface from a set of points so to avoid a blobby and jelly-like surface which is undesirable. The paper argues that this is a better approach than using Gaussian blurring because it performs better and ought to produce better results because there will be no silhouette blurring. 
-This is achieved by translating points along the $z$-axis according the curvature flow. 
+Smoothing is a critical component in the paper. It is responsible for creating a smooth surface from a set of points so to avoid a blobby and jelly-like surface. The paper argues that this is a better approach than using Gaussian blurring because it is computationally less expensive and ought to produce better results, because there will be no silhouette blurring. 
+This is achieved by translating fragments along the $z$-axis according to the curvature flow in that region. 
 
-Curvature flow is defined as the divergence of the normal by \(2H = \nabla \cdot \hat{\mathbf{n}}\). Subsequently, depth values can be displaced every timestep based on the curvature in that point, as \(\frac{\partial z}{\partial t} = H\).
+Curvature flow is defined as the divergence of the unit normal by \(2H = \nabla \cdot \hat{\mathbf{n}}\). Subsequently, depth values can be displaced every timestep based on the curvature in that point, as \(\frac{\partial z}{\partial t} = H\).
 
-To obtain normals, the point of which the normal needs to be determined is mapped back to a point in view by inverting the projection transformation. This point is called \begin{equation}
+To obtain normals, the point of which the normal needs to be determined is mapped back to a point in view-space by inverting the projection transformation.
+This point is called \begin{equation}
 	\label{eq:pcalc}
 	\mathbf{P}(x, y) = \begin{pmatrix}\frac{\frac{2x}{V_x} - 1.0}{F_x}\\\frac{\frac{2y}{V_y} - 1.0}{F_y}\\1\end{pmatrix}z(x,y) = \begin{pmatrix}W_x\\W_y\\1\end{pmatrix}z(x,y)
 \end{equation}
@@ -54,7 +54,7 @@ Rigorous algebra shows that
 \end{equation}
 Here \(C_x = \frac{2}{V_xF_x}\) and \(C_y = \frac{2}{V_yF_y}\) 
 
-Subsequently, the unit normal must be obtained. This is obtained by \(\hat{\mathbf{n}}(x,y) = \frac{\mathbf{n}(x,y)}{\mid \mathbf{n}(x,y)\mid} = \frac{\mathbf{n}(x,y)}{\sqrt{D}}\) where 
+Subsequently, the unit normal is obtained by \(\hat{\mathbf{n}}(x,y) = \frac{\mathbf{n}(x,y)}{\mid \mathbf{n}(x,y)\mid} = \frac{\mathbf{n}(x,y)}{\sqrt{D}}\), where 
 \begin{equation}
 	\label{eq:D}
 	D = C_y^2 \left(\frac{\partial z}{\partial x}\right)^2 + C_x^2 \left(\frac{\partial z}{\partial y}\right)^2 + C_x^2 C_y^2 z^2
@@ -71,12 +71,13 @@ in which
 	E_y &=& \frac{1}{2}\frac{\partial z}{\partial y}\frac{\partial D}{\partial y} - \frac{\partial^2z}{\partial y^2}D
 \end{eqnarray}
 
-These values can be calculated fairly easy and can thus be used to modify the \(z\)-values in the visualization easily and fast using Euler integration in time.
+These values can be calculated fairly easy and can thus be used to modify the \(z\)-values in the visualization quickly using Euler integration in time.
 
 \subsection{Thickness}
 The thickness of a fluid is important because an object behind the fluid should change color according to the amount of fluid in front of it.
 Also, the thickness is used to determine the transparency and color of the fluid.
 This means that the distance from the camera towards the first opaque object has to be determined for each fragment.
+
 Each particle is rendered as a sphere and has a fixed size.
 Additive blending is used to determine the total thickness of a surface at each fragment.
 
@@ -85,16 +86,19 @@ In order to remove the appearance of an artificially smooth surface, noise has t
 Since the simulation has moving particles in it, the noise has to advect with those particles for a realistic result.
 Also the noise has to have a smaller and larger frequency than the fluid.
 
-Van der Laan \cite{van2009screen} suggests to use Perlin noise \cite{perlin1985image}.
-One octave of noise is added to each projected particle, this makes sure that the noise moves along with the fluid flow.
-The amount of noise that is added for each particle depends on the depth of the particle with respect to the surface, in other words; noise contributes less as particles submerge.
+\cite{van2009screen} suggests to use \cite{perlin1985image} noise.
+One octave of noise is added to each projected particle, rather than to the entire simulation to make sure that noise advects with the particles.
+The amount of noise that is added to each particle depends on the depth of the particle with respect to the surface.
+In other words, noise contributes less as particles submerge.
+
+Equation \ref{eq:noise} shows this noise calculation in a formula.
 \begin{equation}
 \label{eq:noise}
 	I(x,y) = noise(x,y) \ast e^{-x^2 - y^2 - (\mathbf{p}_z(x,y)-d(x,y))^2}
 \end{equation}
-Equation \ref{eq:noise} shows this noise calculation in a formula.
+, where $\mathbf{P}$ is the position of the pixel in view-space, $d$ the depth, and $x$ and $y$ vary between $-1$ and $1$.
 
-The noise for every particle is then summed together to get the correct amount of noise per fragment.
+The noise of every particle is then summed together to get the correct amount of noise per fragment.
 Fluids that have a high change in velocity need to be marked, so the noise for that particles is influenced more.
 Additive blending is used so the Perlin noise is correctly blended into the fluid.
 
@@ -122,7 +126,7 @@ The Fresnel equation (by Augustin-Jean Fresnel) is used to calculate the correct
 \end{eqnarray}
 Where $R_s$ is the reflection vector, and $T_s$ is the refraction vector.
 The meaning of the other variables can be seen in figure~\ref{fig:fresnel}.
-Once these vectors are known, the Phong \cite{phong1975illumination} illumination model can be used for the rendering.
+Once these vectors are known, the \cite{phong1975illumination} illumination model can be used for the rendering.
 
 This results in the following equation to determine the output color \cite{van2009screen}:
 \begin{equation}
