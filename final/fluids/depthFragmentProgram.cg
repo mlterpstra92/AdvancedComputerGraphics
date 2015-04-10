@@ -29,7 +29,6 @@ void main(
 	float4 clipPos = mul(pixelPos, projection_mat);
 	// Convert to homogeneous device coordinates
 	depth_out = clipPos.z / clipPos.w;
-	// Emit color as Prussian Blue
-    // col = float4(0.0, 0.49, 0.83, .25);
-    col = float4(0.02, 0.1, 0.3, .5);
+	// Emit color as a kind of blue
+	col = float4(0.02, 0.1, 0.3, .5);
 }

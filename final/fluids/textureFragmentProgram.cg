@@ -1,12 +1,12 @@
-float2 wposToUVcoord(float2 wpos, float2 window_size)
+float2 toCoord(float2 point, float2 window_size)
 {
-    return float2(wpos.x/(window_size.x-1.0), wpos.y/(window_size.y-1.0));
+    return float2(point.x/(window_size.x-1.0), point.y/(window_size.y-1.0));
 }
 
 float3 calc_normal(float2 uv_coord, float2 wpos, float depth, uniform sampler2D depth_values, uniform float2 C, uniform float2 wsize, uniform float4x4 proj_matrix) {
     //Calculate normal as according to the paper
-    float2 dx = wposToUVcoord(float2(1,0), wsize);
-    float2 dy = wposToUVcoord(float2(0,1), wsize);
+    float2 dx = toCoord(float2(1,0), wsize);
+    float2 dy = toCoord(float2(0,1), wsize);
 
     float depth_dxp = tex2D(depth_values, uv_coord + dx).x;
     float depth_dxn = tex2D(depth_values, uv_coord - dx).x;
@@ -55,12 +55,12 @@ float4 main(
     float3 eye_eye = mul(modelview_matrix, float4(eye_loc, 0.0)).xyz;
 
     // view vector
-    float3 viewdir = normalize(eye_eye - p_eye);
+    float3 view_dir = normalize(eye_eye - p_eye);
 
     // Phong lighting model 
-    float NV = dot(normal, viewdir);
+    float NV = dot(normal, view_dir);
 
-    float3 halfvec = normalize(light_dir + viewdir);
+    float3 halfvec = normalize(light_dir + view_dir);
     float NH = dot(normal, halfvec);
 
     //Prevent ugly black borders around
@@ -83,7 +83,7 @@ float4 main(
     if (method == 1)
         return float4(diffuse * normalizedColor + schlick + specular, 1.0);
     if (method == 2)
-        return float4(depth, depth, depth ,1);
+        return float4(depth, depth, depth, 1);
     if (method == 3)
         return float4(normal, 1.0);
 }
