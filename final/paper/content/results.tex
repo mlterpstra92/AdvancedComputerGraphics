@@ -6,13 +6,25 @@ Our project is not quite done, but the first results are visible in figure~\ref{
 \begin{figure}[!th]
 \hrule
 \begin{center}
-\vspace*{2ex}\includegraphics[width=0.48\textwidth,clip=true,trim=10cm 3cm 10cm 3cm]{pictures/colors.png}
+\vspace*{2ex}\includegraphics[width=0.48\textwidth,clip=true,trim=10cm 1cm 10cm 5cm]{pictures/colors_unsmoothed.png}
 \end{center}
-\caption{The SPH simulation with splatted point and Phong and Fresnel rendering}
+\caption{The SPH simulation with splatted point and Phong and Fresnel rendering without surface smoothing}
 \label{fig:res} 
 \vspace*{2ex}
 \hrule
 \end{figure}
+
+\begin{figure}[!th]
+\hrule
+\begin{center}
+\vspace*{2ex}\includegraphics[width=0.48\textwidth,clip=true,trim=10cm 1cm 10cm 5cm]{pictures/colors_smoothed.png}
+\end{center}
+\caption{The same simulation visualized with 24 smooth steps}
+\label{fig:res} 
+\vspace*{2ex}
+\hrule
+\end{figure}
+
 
 Currently, splatting the points and determining the normals per fragment works. Also parts of the rendering implementation are complete, but refraction of the water is lacking.
 Moreover, thickness is currently not implemented, as well as noise and foam.
