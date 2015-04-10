@@ -75,20 +75,56 @@ These values can be calculated fairly easy and can thus be used to modify the \(
 
 \subsection{Thickness}
 The thickness of a fluid is important because an object behind the fluid should change color according to the amount of fluid in front of it.
+Also, the thickness is used to determine the transparency and color of the fluid.
 This means that the distance from the camera towards the first opaque object has to be determined for each fragment.
+Each particle is rendered as a sphere and has a fixed size.
+Additive blending is used to determine the total thickness of a surface at each fragment.
 
 \subsection{Noise}
 In order to remove the appearance of an artificially smooth surface, noise has to be added.
-Since the simulation has moving particles in it, the noise has to advect with those particles.
-\cite{van2009screen} suggests to use Perlin noise \cite{perlin1985image}.
+Since the simulation has moving particles in it, the noise has to advect with those particles for a realistic result.
+Also the noise has to have a smaller and larger frequency than the fluid.
+
+Van der Laan \cite{van2009screen} suggests to use Perlin noise \cite{perlin1985image}.
 One octave of noise is added to each projected particle, this makes sure that the noise moves along with the fluid flow.
+The amount of noise that is added for each particle depends on the depth of the particle with respect to the surface, in other words; noise contributes less as particles submerge.
+\begin{equation}
+\label{eq:noise}
+	I(x,y) = noise(x,y) \ast e^{-x^2 - y^2 - (\mathbf{p}_z(x,y)-d(x,y))^2}
+\end{equation}
+Equation \ref{eq:noise} shows this noise calculation in a formula.
+
+The noise for every particle is then summed together to get the correct amount of noise per fragment.
+Fluids that have a high change in velocity need to be marked, so the noise for that particles is influenced more.
+Additive blending is used so the Perlin noise is correctly blended into the fluid.
 
 Also, foam can be added to the fluid by adding grey according to the magnitude of the noise.
 
 \subsection{Rendering}
 Finally, all intermediate results are merged together in a final texture that is rendered as full-screen quad.
-The Fresnel equation is used to calculate the correct reflection and refraction vectors needed for the Phong \cite{phong1975illumination} illumination model.
-This results in the following equation \cite{van2009screen}to determine the output color:
+Since light changes direction when it moves between media, and thus the reflection and refraction vectors changes too, a calculation for this direction change is needed.
+A visualization of this behavior can be seen in figure~\ref{fig:fresnel}.
+\begin{figure}[!th]
+\hrule
+\begin{center}
+\vspace*{2ex}\includegraphics[width=0.48\textwidth]{pictures/Fresnel.eps}
+\end{center}
+\caption{Light direction change between surfaces (From: \url{http://en.wikipedia.org/wiki/File:Fresnel1.svg})}
+\label{fig:fresnel} 
+\vspace*{2ex}
+\hrule
+\end{figure}
+
+The Fresnel equation (by Augustin-Jean Fresnel) is used to calculate the correct reflection and refraction vectors,
+\begin{eqnarray}
+	R_s &=& \left\vert \frac{n_1 \cos \theta_i - n_2 \cos \theta_t}{n_1 \cos \theta_i + n_2 \cos \theta_t} \right\vert ^2 \\
+	T_s &=& 1 - R_s.
+\end{eqnarray}
+Where $R_s$ is the reflection vector, and $T_s$ is the refraction vector.
+The meaning of the other variables can be seen in figure~\ref{fig:fresnel}.
+Once these vectors are known, the Phong \cite{phong1975illumination} illumination model can be used for the rendering.
+
+This results in the following equation to determine the output color \cite{van2009screen}:
 \begin{equation}
 \label{eq:shading}
 C_{out} = a(1 - F(\mathbf{n} \cdot \mathbf{v})) + bF(\mathbf{n} \cdot \mathbf{v}) + k_s(\mathbf{n} \cdot \mathbf{h})^\alpha.
