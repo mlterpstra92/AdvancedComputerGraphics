@@ -1,5 +1,6 @@
 %!TEX root = ../report.tex
 \section{Implementation}
+\label{sec:impl}
 The solution that has been proposed in the previous section is implemented using the C++ programming language in combination with the OpenGL API.
 To program on the GPU, Cg is used as shading language.
 
@@ -83,7 +84,7 @@ We had trouble implementing this step in Cg, but we found a reference \footnote{
 
 \subsection{Rendering}
 For the final rendering phase we implemented a fragment shader that produces a color for each fragment, which only has a depth component.
-We have a default color - RGB(0.02, 0.1, 0.3), with $\alpha = 0.5$ - for water that is modified according to its surroundings based on shading. 
+We have a default color - RGB(0.02, 0.1, 0.3), with $\alpha = 0.5$ - for a fluid that is modified according to its surroundings based on shading. 
 The end-results are projected onto a full-screen quad, which is the best option due to our framebuffer-objects.
 
 The paper suggests to implement a combination of Phong shading and the Fresnel equation for displaying the surface. 
